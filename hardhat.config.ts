@@ -10,9 +10,6 @@ const { POLYGON_URL, MUMBAI_URL, PRIVATE_KEY, ETHERSCAN_KEY } = process.env;
 const config: HardhatUserConfig = {
   solidity: "0.8.19",
   networks: {
-    localhost: {
-      chainId: 31337
-    },
     hardhat: {
       chainId: 137,
       forking: {
