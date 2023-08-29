@@ -3,17 +3,12 @@ import { ethers } from "hardhat";
 async function main() {
   const [deployer] = await ethers.getSigners();
 
-  console.log("Deploying the NFT contract with the address:", deployer.address);
+  const taskFactory = (await ethers.getContractFactory("Web3Task")).deploy();
 
-  const MyNFT = await ethers.getContractFactory("Web3Task");
-  const myNFT = await MyNFT.deploy("Web3Task", "W3BTASK");
-
-  console.log("NFT contract deployed with the address:", myNFT.address);
+  console.log("Deploying the Web3Task contract with the address:", deployer.address);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+main().catch((error) => {
+	console.error(error);
+	process.exitCode = 1;
+});
