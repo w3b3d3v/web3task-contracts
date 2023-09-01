@@ -11,7 +11,7 @@ contract TasksManager is AccessControl, Web3Task, Multicall {
     event TitleUpdated(uint256 indexed _taskId);
     event DescriptionUpdated(uint256 indexed _taskId);
     event EndDateUpdated(uint256 indexed _taskId);
-    event MetaDataUpdated(uint256 indexed _taskId);
+    event MetadataUpdated(uint256 indexed _taskId);
 
     modifier isConcluded(uint256 _taskId) {
         if (
@@ -72,6 +72,6 @@ contract TasksManager is AccessControl, Web3Task, Multicall {
         onlyOperator(this.setMetadata.selector, _authorized, msg.sender)
     {
         _tasks[_taskId].metadata = _metadata;
-        emit MetaDataUpdated(_taskId);
+        emit MetadataUpdated(_taskId);
     }
 }
