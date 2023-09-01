@@ -15,6 +15,8 @@ contract Web3Task is ERC721, AccessControl, IWeb3Task {
 
     mapping(uint256 => Task) internal _tasks;
     mapping(uint256 => uint256) private _balances;
+    mapping(uint256 => uint256) internal _approvals;
+    mapping(uint256 => address) internal _alreadyVoted;
 
     constructor() ERC721("Web3Task", "W3TH") {}
 
@@ -82,7 +84,7 @@ contract Web3Task is ERC721, AccessControl, IWeb3Task {
         uint256 _authorizedId
     )
         external
-        onlyOperator(this.startTask.selector, _authorizedId, msg.sender)
+        onlyOperator(this.reviewTask.selector, _authorizedId, msg.sender)
     {
         Task memory task = getTask(_taskId);
 
@@ -99,15 +101,12 @@ contract Web3Task is ERC721, AccessControl, IWeb3Task {
         emit TaskUpdated(_taskId, Status.Review);
     }
 
-    mapping(uint256 => uint256) internal _approvals;
-    mapping(uint256 => address) internal _alreadyVoted;
-
     function completeTask(
         uint256 _taskId,
         uint256 _authorizedId
     )
         external
-        onlyOperator(this.startTask.selector, _authorizedId, msg.sender)
+        onlyOperator(this.completeTask.selector, _authorizedId, msg.sender)
     {
         if (_alreadyVoted[_taskId] == msg.sender) {
             revert AlreadyVoted();
@@ -136,11 +135,11 @@ contract Web3Task is ERC721, AccessControl, IWeb3Task {
         uint256 _authorizedId
     )
         external
-        onlyOperator(this.startTask.selector, _authorizedId, msg.sender)
+        onlyOperator(this.cancelTask.selector, _authorizedId, msg.sender)
     {
         Task memory task = getTask(_taskId);
 
-        if (task.status != Status.Canceled) {
+        if (task.status == Status.Canceled) {
             revert InvalidStatus(task.status);
         }
 
@@ -168,14 +167,14 @@ contract Web3Task is ERC721, AccessControl, IWeb3Task {
         uint256 _authorizationId
     ) internal pure returns (bool) {
         for (uint256 i; i < _authorized.length; ) {
-            unchecked {
-                i++;
-            }
             if (_authorized[i] == _authorizationId) {
                 return true;
             }
-        }
 
+            unchecked {
+                i++;
+            }
+        }
         return false;
     }
 }
