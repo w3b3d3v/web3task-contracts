@@ -45,7 +45,7 @@ abstract contract AccessControl {
         address _authorizedAddress,
         bool _isAuthorized
     ) public onlyOwner {
-        if (_authorizationId == 1) {
+        if (_authorizationId == 0 || _authorizationId == 1) {
             revert InvalidAuthId();
         }
         _auths[_authorizationId][_authorizedAddress] = _isAuthorized;
