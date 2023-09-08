@@ -2,6 +2,7 @@ import { ethers } from "hardhat";
 import { Contract, ContractFactory } from "ethers";
 import { expect } from "chai";
 
+
 describe("Web3Task", function () {
   let Web3Task: Contract;
   let address;
@@ -11,6 +12,9 @@ describe("Web3Task", function () {
   let userC: any;
   let leaderId = 5;
   let memberId = 10;
+  let createdTaskId: any;
+  const taskTitle = "123";
+  const taskDescription = "123";
 
   enum Status {
     Created,
@@ -104,13 +108,18 @@ describe("Web3Task", function () {
     expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
   })
 
+  it("should failed to create new operator { sender != owner }", async function () {
+    let interfaceId = Web3Task.interface.getSighash('createTask');
+    await expect(Web3Task.connect(userA).setOperator(interfaceId, leaderId, true)).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
+  })
+
   it("should create new task", async function () {
     const Task = {
       status: 0,
       title: "Pagar membros do PodLabs",
       description: "Não esquecer",
       reward: ethers.utils.parseEther("1"),
-      endDate: Math.floor(Date.now() / 1000) + 3600,
+      endDate: ethers.constants.MaxUint256,
       authorized: [memberId],
       creator: leaderId,
       assignee: userC.address,
@@ -121,59 +130,128 @@ describe("Web3Task", function () {
     const receipt = await tx.wait();
     const taskId = receipt.events[0].args[0];
     const task = await Web3Task.getTask(taskId);
+    createdTaskId = taskId;
     
     expect(Task.title).equal(task.title);
   })
 
+  it("should failed to create new task (unauthorized user - userC)", async function () {
+    const Task = {
+      status: 0,
+      title: "Pagar membros do PodLabs",
+      description: "Não esquecer",
+      reward: ethers.utils.parseEther("1"),
+      endDate: ethers.constants.MaxUint256,
+      authorized: [memberId],
+      creator: leaderId,
+      assignee: userB.address,
+      metadata: "ipfs://0xc0/",
+    };
+
+    await expect(Web3Task.connect(userC).createTask(Task)).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
+  })
+
+  it("should failed to create new task (invalid leaderId)", async function () {
+    const Task = {
+      status: 0,
+      title: "Pagar membros do PodLabs",
+      description: "Não esquecer",
+      reward: ethers.utils.parseEther("1"),
+      endDate: ethers.constants.MaxUint256,
+      authorized: [memberId],
+      creator: 200,
+      assignee: userB.address,
+      metadata: "ipfs://0xc0/",
+    };
+
+    await expect(Web3Task.connect(userA).createTask(Task)).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
+  })
+
+  it("should failed to create new task (invalid status -  Progress (1))", async function () {
+    const Task = {
+      status: 1,
+      title: "Pagar membros do PodLabs",
+      description: "Não esquecer",
+      reward: ethers.utils.parseEther("1"),
+      endDate: ethers.constants.MaxUint256,
+      authorized: [memberId],
+      creator: leaderId,
+      assignee: userB.address,
+      metadata: "ipfs://0xc0/",
+    };
+
+    await expect(Web3Task.connect(userA).createTask(Task)).to.be.revertedWithCustomError(Web3Task, "InvalidStatus");
+  })
+
+  it("should failed to create new task (invalid end date)", async function () {
+
+    const expiredDate = (await ethers.provider.getBlock('latest')).timestamp;
+
+    const Task = {
+      status: 0,
+      title: "Pagar membros do PodLabs",
+      description: "Não esquecer",
+      reward: ethers.utils.parseEther("1"),
+      endDate: expiredDate - 1,
+      authorized: [memberId],
+      creator: leaderId,
+      assignee: userB.address,
+      metadata: "ipfs://0xc0/",
+    };
+
+    await expect(Web3Task.connect(userA).createTask(Task)).to.be.revertedWithCustomError(Web3Task, "InvalidEndDate");
+  })
+
+
   it("should set title", async function () {
-    expect(await Web3Task.connect(userA).setTitle(1, leaderId, "123")).to.emit(Web3Task, "TitleUpdated").withArgs(1);
-    const task = await Web3Task.getTask(1);
-    expect(task.title).to.equal("123");
+    expect(await Web3Task.connect(userA).setTitle(createdTaskId, leaderId, taskTitle)).to.emit(Web3Task, "TitleUpdated").withArgs(createdTaskId);
+    const task = await Web3Task.getTask(createdTaskId);
+    expect(task.title).to.equal(taskTitle);
   })
 
   it("should set description", async function () {
-    expect(await Web3Task.connect(userA).setDescription(1, leaderId, "123")).to.emit(Web3Task, "TitleUpdated").withArgs(1);
-    const task = await Web3Task.getTask(1);
-    expect(task.description).to.equal("123");
+    expect(await Web3Task.connect(userA).setDescription(createdTaskId, leaderId, taskDescription)).to.emit(Web3Task, "TitleUpdated").withArgs(createdTaskId);
+    const task = await Web3Task.getTask(createdTaskId);
+    expect(task.description).to.equal(taskDescription);
   })
 
   it("should set endDate", async function () {
     const target = Math.floor(Date.now() / 1000) + 3600;
-    expect(await Web3Task.connect(userA).setEndDate(1, leaderId, target)).to.emit(Web3Task, "TitleUpdated").withArgs(1);
-    const task = await Web3Task.getTask(1);
+    expect(await Web3Task.connect(userA).setEndDate(createdTaskId, leaderId, target)).to.emit(Web3Task, "TitleUpdated").withArgs(createdTaskId);
+    const task = await Web3Task.getTask(createdTaskId);
     expect(task.endDate).to.equal(target);
   })
 
   it("should set metadata", async function () {
-    expect(await Web3Task.connect(userA).setTitle(1, leaderId, "123")).to.emit(Web3Task, "MetadataUpdated").withArgs(1);
-    const task = await Web3Task.getTask(1);
-    expect(task.title).to.equal("123");
+    expect(await Web3Task.connect(userA).setTitle(createdTaskId, leaderId, taskTitle)).to.emit(Web3Task, "MetadataUpdated").withArgs(createdTaskId);
+    const task = await Web3Task.getTask(createdTaskId);
+    expect(task.title).to.equal(taskTitle);
   })
 
   it("should start task", async function () {
-    expect(await Web3Task.connect(userC).startTask(1, memberId)).to.emit(Web3Task, "TaskStarted").withArgs(1, userC.address);
-    const task = await Web3Task.getTask(1);
+    expect(await Web3Task.connect(userC).startTask(createdTaskId, memberId)).to.emit(Web3Task, "TaskStarted").withArgs(createdTaskId, userC.address);
+    const task = await Web3Task.getTask(createdTaskId);
     expect(task.status).to.equal(Status.Progress);
   })
 
   it("should review task", async function () {
-    expect(await Web3Task.connect(userC).reviewTask(1, memberId)).to.emit(Web3Task, "TaskUpdated").withArgs(1, Status.Review);
-    const task = await Web3Task.getTask(1);
+    expect(await Web3Task.connect(userC).reviewTask(createdTaskId, memberId)).to.emit(Web3Task, "TaskUpdated").withArgs(createdTaskId, Status.Review);
+    const task = await Web3Task.getTask(createdTaskId);
     expect(task.status).to.equal(Status.Review);
   })
 
   it("should complete task ", async function () {
-    expect(await Web3Task.connect(userA).completeTask(1, leaderId)).to.be.ok;
-    expect(await Web3Task.connect(userB).completeTask(1, leaderId)).to.emit(Web3Task, "TaskUpdated").withArgs(1, Status.Completed);
-    const task = await Web3Task.getTask(1);
+    expect(await Web3Task.connect(userA).completeTask(createdTaskId, leaderId)).to.be.ok;
+    expect(await Web3Task.connect(userB).completeTask(createdTaskId, leaderId)).to.emit(Web3Task, "TaskUpdated").withArgs(createdTaskId, Status.Completed);
+    const task = await Web3Task.getTask(createdTaskId);
     expect(task.status).to.equal(Status.Completed);
   })
 
   it("should cancel task", async function () {
-    expect(await Web3Task.connect(userA).cancelTask(1, leaderId)).to.emit(Web3Task, "TaskUpdated").withArgs(1, Status.Canceled);
+    expect(await Web3Task.connect(userA).cancelTask(createdTaskId, leaderId)).to.emit(Web3Task, "TaskUpdated").withArgs(createdTaskId, Status.Canceled);
   })
 
   it("should set title failure", async function () {
-    await expect(Web3Task.connect(userA).setTitle(1, leaderId, "123")).to.be.revertedWithCustomError(Web3Task, "NotConcluded").withArgs(1);
+    await expect(Web3Task.connect(userA).setTitle(createdTaskId, leaderId, taskTitle)).to.be.revertedWithCustomError(Web3Task, "NotConcluded").withArgs(createdTaskId);
   })
 })
