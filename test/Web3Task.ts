@@ -119,7 +119,7 @@ describe("Web3Task", function () {
       title: "Pagar membros do PodLabs",
       description: "Não esquecer",
       reward: ethers.utils.parseEther("1"),
-      endDate: Math.floor(Date.now() / 1000) + 3600,
+      endDate: ethers.constants.MaxUint256,
       authorized: [memberId],
       creator: leaderId,
       assignee: userC.address,
@@ -141,7 +141,7 @@ describe("Web3Task", function () {
       title: "Pagar membros do PodLabs",
       description: "Não esquecer",
       reward: ethers.utils.parseEther("1"),
-      endDate: Math.floor(Date.now() / 1000) + 3600,
+      endDate: ethers.constants.MaxUint256,
       authorized: [memberId],
       creator: leaderId,
       assignee: userB.address,
@@ -149,7 +149,6 @@ describe("Web3Task", function () {
     };
 
     await expect(Web3Task.connect(userC).createTask(Task)).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
-  
   })
 
   it("should failed to create new task (invalid leaderId)", async function () {
@@ -158,7 +157,7 @@ describe("Web3Task", function () {
       title: "Pagar membros do PodLabs",
       description: "Não esquecer",
       reward: ethers.utils.parseEther("1"),
-      endDate: Math.floor(Date.now() / 1000) + 3600,
+      endDate: ethers.constants.MaxUint256,
       authorized: [memberId],
       creator: 200,
       assignee: userB.address,
@@ -166,7 +165,6 @@ describe("Web3Task", function () {
     };
 
     await expect(Web3Task.connect(userA).createTask(Task)).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
-
   })
 
   it("should failed to create new task (invalid status -  Progress (1))", async function () {
@@ -175,7 +173,7 @@ describe("Web3Task", function () {
       title: "Pagar membros do PodLabs",
       description: "Não esquecer",
       reward: ethers.utils.parseEther("1"),
-      endDate: Math.floor(Date.now() / 1000) + 3600,
+      endDate: ethers.constants.MaxUint256,
       authorized: [memberId],
       creator: leaderId,
       assignee: userB.address,
@@ -183,16 +181,18 @@ describe("Web3Task", function () {
     };
 
     await expect(Web3Task.connect(userA).createTask(Task)).to.be.revertedWithCustomError(Web3Task, "InvalidStatus");
-  
   })
 
   it("should failed to create new task (invalid end date)", async function () {
+
+    const expiredDate = (await ethers.provider.getBlock('latest')).timestamp;
+
     const Task = {
-      status: 1,
+      status: 0,
       title: "Pagar membros do PodLabs",
       description: "Não esquecer",
       reward: ethers.utils.parseEther("1"),
-      endDate: Math.floor(Date.now() / 1000),
+      endDate: expiredDate - 1,
       authorized: [memberId],
       creator: leaderId,
       assignee: userB.address,
@@ -200,7 +200,6 @@ describe("Web3Task", function () {
     };
 
     await expect(Web3Task.connect(userA).createTask(Task)).to.be.revertedWithCustomError(Web3Task, "InvalidEndDate");
-  
   })
 
 
