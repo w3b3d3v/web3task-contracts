@@ -120,6 +120,7 @@ coverage
 coverage.json
 typechain
 typechain-types
+yarn.lock
 
 # Hardhat files
 cache
