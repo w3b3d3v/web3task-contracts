@@ -1,26 +1,25 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Web3Task} from "./Web3Task.sol";
 import {AccessControl} from "./AccessControl.sol";
 import {Multicall} from "@openzeppelin/contracts/utils/Multicall.sol";
 
-error NotConcluded(uint256 _taskId);
-
 contract TasksManager is AccessControl, Web3Task, Multicall {
+    error TaskCannotBeChanged(uint256 _taskId);
     event TitleUpdated(uint256 indexed _taskId);
     event DescriptionUpdated(uint256 indexed _taskId);
     event EndDateUpdated(uint256 indexed _taskId);
     event MetadataUpdated(uint256 indexed _taskId);
 
-    modifier isConcluded(uint256 _taskId) {
+    function isConcluded(uint256 _taskId) public view returns (bool) {
         if (
             _tasks[_taskId].status == Status.Completed ||
             _tasks[_taskId].status == Status.Canceled
         ) {
-            revert NotConcluded(_taskId);
+            return true;
         }
-        _;
+        return false;
     }
 
     function setTitle(
@@ -28,10 +27,13 @@ contract TasksManager is AccessControl, Web3Task, Multicall {
         uint256 _authorized,
         string memory _title
     )
-        external
-        isConcluded(_taskId)
+        public
+        virtual
         onlyOperator(this.setTitle.selector, _authorized, msg.sender)
     {
+        if (isConcluded(_taskId)) {
+            revert TaskCannotBeChanged(_taskId);
+        }
         _tasks[_taskId].title = _title;
         emit TitleUpdated(_taskId);
     }
@@ -41,10 +43,13 @@ contract TasksManager is AccessControl, Web3Task, Multicall {
         uint256 _authorized,
         string memory _description
     )
-        external
-        isConcluded(_taskId)
+        public
+        virtual
         onlyOperator(this.setDescription.selector, _authorized, msg.sender)
     {
+        if (isConcluded(_taskId)) {
+            revert TaskCannotBeChanged(_taskId);
+        }
         _tasks[_taskId].description = _description;
         emit DescriptionUpdated(_taskId);
     }
@@ -54,10 +59,13 @@ contract TasksManager is AccessControl, Web3Task, Multicall {
         uint256 _authorized,
         uint256 _endDate
     )
-        external
-        isConcluded(_taskId)
+        public
+        virtual
         onlyOperator(this.setEndDate.selector, _authorized, msg.sender)
     {
+        if (isConcluded(_taskId)) {
+            revert TaskCannotBeChanged(_taskId);
+        }
         _tasks[_taskId].endDate = _endDate;
         emit EndDateUpdated(_taskId);
     }
@@ -67,8 +75,8 @@ contract TasksManager is AccessControl, Web3Task, Multicall {
         uint256 _authorized,
         string memory _metadata
     )
-        external
-        isConcluded(_taskId)
+        public
+        virtual
         onlyOperator(this.setMetadata.selector, _authorized, msg.sender)
     {
         _tasks[_taskId].metadata = _metadata;

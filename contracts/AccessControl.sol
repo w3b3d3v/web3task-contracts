@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
-
-error Unauthorized();
-error InvalidAuthId();
+pragma solidity ^0.8.20;
 
 abstract contract AccessControl {
+    /**
+     * @dev Emitted when `msg.sender` is not authorized to operate the contract.
+     */
+    error Unauthorized(address operator);
+
+    error InvalidAuthId();
+
     event AuthorizedPersonnel(
         uint256 indexed id,
         address indexed addr,
@@ -12,30 +16,30 @@ abstract contract AccessControl {
     );
     event AuthorizedOperator(uint256 indexed id, bytes4 indexed interfaceId);
 
+    mapping(uint256 => mapping(address => bool)) private _auths;
+    mapping(bytes4 => mapping(uint256 => bool)) private _funcAuths;
+
     constructor() {
         _auths[1][msg.sender] = true;
     }
 
-    mapping(uint256 => mapping(address => bool)) internal _auths;
-    mapping(bytes4 => mapping(uint256 => bool)) internal _funcAuths;
-
     modifier onlyOperator(
         bytes4 _interfaceId,
         uint256 _authorizationId,
-        address _address
+        address _operator
     ) {
         if (
-            !isOperator(_interfaceId, _authorizationId) ||
-            !hasAuthorization(_authorizationId, _address)
+            !hasAuthorization(_authorizationId, _operator) ||
+            !isOperator(_interfaceId, _authorizationId)
         ) {
-            revert Unauthorized();
+            revert Unauthorized(_operator);
         }
         _;
     }
 
     modifier onlyOwner() {
         if (!hasAuthorization(1, msg.sender)) {
-            revert Unauthorized();
+            revert Unauthorized(msg.sender);
         }
         _;
     }
@@ -44,7 +48,7 @@ abstract contract AccessControl {
         uint256 _authorizationId,
         address _authorizedAddress,
         bool _isAuthorized
-    ) public onlyOwner {
+    ) public virtual onlyOwner {
         if (_authorizationId == 0 || _authorizationId == 1) {
             revert InvalidAuthId();
         }
@@ -60,7 +64,7 @@ abstract contract AccessControl {
         bytes4 _interfaceId,
         uint256 _authorizationId,
         bool _isAuthorized
-    ) public onlyOwner {
+    ) public virtual onlyOwner {
         _funcAuths[_interfaceId][_authorizationId] = _isAuthorized;
         emit AuthorizedOperator(_authorizationId, _interfaceId);
     }
@@ -68,14 +72,14 @@ abstract contract AccessControl {
     function hasAuthorization(
         uint256 _authorizationId,
         address _address
-    ) public view returns (bool) {
+    ) public view virtual returns (bool) {
         return _auths[_authorizationId][_address];
     }
 
     function isOperator(
         bytes4 _interfaceId,
         uint256 _authorizationId
-    ) public view returns (bool) {
+    ) public view virtual returns (bool) {
         return _funcAuths[_interfaceId][_authorizationId];
     }
 }
