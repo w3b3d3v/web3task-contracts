@@ -153,6 +153,10 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
 
         Task memory task = getTask(_taskId);
 
+        if (task.creatorRole != _authId) {
+            revert Unauthorized(msg.sender);
+        }
+
         if (task.status != Status.Review) {
             revert InvalidStatus(task.status);
         }
