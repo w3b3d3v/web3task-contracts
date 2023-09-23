@@ -38,21 +38,43 @@ describe("Web3Task", function () {
 		address = Web3Task.address;
 	});
 
+	it("should set the minimum quorum to 2", async function () {
+		await Web3Task.connect(owner).setMinQuorum(2);
+		expect(await Web3Task.APPROVALS()).to.equal(2);
+	});
+
 	it("should fund the authorizationId (Role) {leader = 5}", async function () {
 		await Web3Task.connect(owner).deposit(leaderId, {
 			value: ethers.utils.parseEther("5"),
 		});
 	});
 
+	it("should set owner as withdraw operator, then withdraw from it", async function () {
+		await Web3Task.connect(owner).setOperator(
+			Web3Task.interface.getSighash("withdraw"),
+			leaderId,
+			true
+		);
+
+		expect(
+			await Web3Task.connect(owner).withdraw(
+				leaderId,
+				ethers.utils.parseEther("0.1")
+			)
+		)
+			.to.emit(Web3Task, "Withdraw")
+			.withArgs(leaderId, owner.address, ethers.utils.parseEther("0.1"));
+	});
+
 	it("should create new authorizations { leader, member }", async function () {
 		expect(await Web3Task.setAuthorization(leaderId, userA.address, true))
-			.to.emit(Web3Task, "AuthorizedPersonnel")
+			.to.emit(Web3Task, "AuthorizePersonnel")
 			.withArgs(leaderId, userA.address, true);
 		expect(await Web3Task.setAuthorization(leaderId, userB.address, true))
-			.to.emit(Web3Task, "AuthorizedPersonnel")
+			.to.emit(Web3Task, "AuthorizePersonnel")
 			.withArgs(leaderId, userB.address, true);
 		expect(await Web3Task.setAuthorization(memberId, userC.address, true))
-			.to.emit(Web3Task, "AuthorizedPersonnel")
+			.to.emit(Web3Task, "AuthorizePersonnel")
 			.withArgs(memberId, userC.address, true);
 	});
 
@@ -62,9 +84,10 @@ describe("Web3Task", function () {
 		).to.be.revertedWithCustomError(Web3Task, "InvalidAuthId");
 	});
 
-	it("should failed to create new authorizations { id = 1 }", async function () {
-		await expect(
-			Web3Task.setAuthorization(1, userA.address, true)
+	it("should failed to create new operator { id = 1 }", async function () {
+		let interfaceId = Web3Task.interface.getSighash("createTask");
+		expect(
+			await Web3Task.setOperator(interfaceId, leaderId, true)
 		).to.be.revertedWithCustomError(Web3Task, "InvalidAuthId");
 	});
 
@@ -77,7 +100,7 @@ describe("Web3Task", function () {
 	it("should create new operator { createTask }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("createTask");
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
 	});
@@ -85,7 +108,7 @@ describe("Web3Task", function () {
 	it("should create new operator { startTask }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("startTask");
 		expect(await Web3Task.setOperator(interfaceId, memberId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, memberId, true);
 		expect(await Web3Task.isOperator(interfaceId, memberId)).to.be.equal(true);
 	});
@@ -93,10 +116,10 @@ describe("Web3Task", function () {
 	it("should create new operator { reviewTask }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("reviewTask");
 		expect(await Web3Task.setOperator(interfaceId, memberId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, memberId, true);
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, memberId)).to.be.equal(true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
@@ -105,7 +128,7 @@ describe("Web3Task", function () {
 	it("should create new operator { completeTask }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("completeTask");
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
 	});
@@ -113,7 +136,7 @@ describe("Web3Task", function () {
 	it("should create new operator { cancelTask }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("cancelTask");
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
 	});
@@ -121,7 +144,7 @@ describe("Web3Task", function () {
 	it("should create new operator { setTitle }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("setTitle");
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
 	});
@@ -129,7 +152,7 @@ describe("Web3Task", function () {
 	it("should create new operator { setDescription }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("setDescription");
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
 	});
@@ -137,7 +160,7 @@ describe("Web3Task", function () {
 	it("should create new operator { setEndDate }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("setEndDate");
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
 	});
@@ -145,7 +168,7 @@ describe("Web3Task", function () {
 	it("should create new operator { setMetadata }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("setMetadata");
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
-			.to.emit(Web3Task, "AuthorizedOperator")
+			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
 	});
