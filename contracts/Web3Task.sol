@@ -6,22 +6,22 @@ import {AccessControl} from "./AccessControl.sol";
 import {IWeb3Task} from "./interfaces/IWeb3Task.sol";
 
 abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
-    /// Current taskId, aslo used as token id.
+    /// @dev Current taskId, aslo used as token id.
     uint256 public taskId;
 
-    /// Amount of necessary approvals to finish a task.
+    /// @dev Amount of necessary approvals to finish a task.
     uint256 public APPROVALS = 2;
 
-    /// Mapping of taskId to Task.
+    /// @dev Mapping of taskId to Task.
     mapping(uint256 => Task) internal _tasks;
 
-    /// Mapping of access control id to balance.
+    /// @dev Mapping of access control id to balance.
     mapping(uint256 => uint256) private _balances;
 
-    /// Mapping of taskId to its approvals for conclusion.
+    /// @dev Mapping of taskId to its approvals for conclusion.
     mapping(uint256 => uint256) private _approvals;
 
-    /// Mapping of taskId to address that already voted.
+    /// @dev Mapping of taskId to address that already voted.
     mapping(uint256 => address) private _alreadyVoted;
 
     /**
