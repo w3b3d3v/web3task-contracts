@@ -8,36 +8,37 @@ abstract contract AccessControl {
     error Unauthorized(address operator);
 
     /**
-     * @dev Emitted when `authorizationId` (role) is invalid.
+     * @dev Emitted when `roleId` is invalid.
      */
-    error InvalidAuthId(uint256 authId);
+    error InvalidRoleId(uint256 roleId);
 
     /**
-     * @dev Emitted when a new address is added to an `authorizationId` (role).
+     * @dev Emitted when a new address is added to an `roleId`.
      */
     event AuthorizePersonnel(
-        uint256 indexed authorizationId,
-        address indexed addr,
-        bool authorized
+        uint256 indexed roleId,
+        address indexed authorizedAddress,
+        bool isAuthorized
     );
 
     /**
-     * @dev Emitted when an `authorizationId` (role) is added as an operator of
+     * @dev Emitted when an `roleId` is added as an operator of
      * a function in the contract.
      */
     event AuthorizeOperator(
-        uint256 indexed authorizationId,
-        bytes4 indexed interfaceId
+        bytes4 indexed interfaceId,
+        uint256 indexed roleId,
+        bool isAuthorized
     );
 
     /// @dev The owner of the contract.
     address private _owner;
 
-    /// @dev Mapping of `authorizationId` and `address` to boolean.
-    mapping(uint256 => mapping(address => bool)) private _auths;
+    /// @dev Mapping of `roleId` and `address` to boolean.
+    mapping(uint256 => mapping(address => bool)) private _roles;
 
-    /// @dev Mapping of `interfaceId` and `authorizationId` to boolean.
-    mapping(bytes4 => mapping(uint256 => bool)) private _funcAuths;
+    /// @dev Mapping of `interfaceId` and `roleId` to boolean.
+    mapping(bytes4 => mapping(uint256 => bool)) private _operators;
 
     /**
      * @dev Modifier to check if `msg.sender` is authorized to operate a
@@ -45,12 +46,11 @@ abstract contract AccessControl {
      */
     modifier onlyOperator(
         bytes4 _interfaceId,
-        uint256 _authorizationId,
+        uint256 _roleId,
         address _operator
     ) {
         if (
-            !hasAuthorization(_authorizationId, _operator) ||
-            !isOperator(_interfaceId, _authorizationId)
+            !hasRole(_roleId, _operator) || !isOperator(_interfaceId, _roleId)
         ) {
             revert Unauthorized(_operator);
         }
@@ -82,31 +82,27 @@ abstract contract AccessControl {
     }
 
     /**
-     * @dev This function sets an authorization to an address.
+     * @dev This function sets an role to an address.
      *
      * Emits a {AuthorizePersonnel} event.
      *
      * Requirements:
      *
      * - `msg.sender` must be the owner of the contract.
-     * - `_authorizationId` must not be 0.
+     * - `_roleId` must not be 0.
      */
-    function setAuthorization(
-        uint256 _authorizationId,
+    function setRole(
+        uint256 _roleId,
         address _authorizedAddress,
         bool _isAuthorized
     ) public virtual onlyOwner {
-        if (_authorizationId == 0) {
-            revert InvalidAuthId(_authorizationId);
+        if (_roleId == 0) {
+            revert InvalidRoleId(_roleId);
         }
 
-        _auths[_authorizationId][_authorizedAddress] = _isAuthorized;
+        _roles[_roleId][_authorizedAddress] = _isAuthorized;
 
-        emit AuthorizePersonnel(
-            _authorizationId,
-            _authorizedAddress,
-            _isAuthorized
-        );
+        emit AuthorizePersonnel(_roleId, _authorizedAddress, _isAuthorized);
     }
 
     /**
@@ -118,35 +114,35 @@ abstract contract AccessControl {
      * Requirements:
      *
      * - `msg.sender` must be the owner of the contract.
-     * - `_authorizationId` must not be 0.
+     * - `_roleId` must not be 0.
      */
     function setOperator(
         bytes4 _interfaceId,
-        uint256 _authorizationId,
+        uint256 _roleId,
         bool _isAuthorized
     ) public virtual onlyOwner {
-        if (_authorizationId == 0) {
-            revert InvalidAuthId(_authorizationId);
+        if (_roleId == 0) {
+            revert InvalidRoleId(_roleId);
         }
 
-        _funcAuths[_interfaceId][_authorizationId] = _isAuthorized;
+        _operators[_interfaceId][_roleId] = _isAuthorized;
 
-        emit AuthorizeOperator(_authorizationId, _interfaceId);
+        emit AuthorizeOperator(_interfaceId, _roleId, _isAuthorized);
     }
 
     /**
-     * @dev This function checks if an address holds a given `authorizationId`.
+     * @dev This function checks if an address holds a given `roleId`.
      *
      * NOTE: The owner of the contract is always authorized.
      */
-    function hasAuthorization(
-        uint256 _authorizationId,
+    function hasRole(
+        uint256 _roleId,
         address _address
     ) public view virtual returns (bool) {
         if (owner() == msg.sender) {
             return true;
         }
-        return _auths[_authorizationId][_address];
+        return _roles[_roleId][_address];
     }
 
     /**
@@ -157,11 +153,11 @@ abstract contract AccessControl {
      */
     function isOperator(
         bytes4 _interfaceId,
-        uint256 _authorizationId
+        uint256 _roleId
     ) public view virtual returns (bool) {
         if (owner() == msg.sender) {
             return true;
         }
-        return _funcAuths[_interfaceId][_authorizationId];
+        return _operators[_interfaceId][_roleId];
     }
 }

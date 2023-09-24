@@ -12,7 +12,12 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     /// @dev Amount of necessary approvals to finish a task.
     uint256 public APPROVALS = 2;
 
-    /// @dev Mapping of taskId to Task.
+    /**
+     * @dev Mapping of taskId to Task.
+     *
+     * This will remain as internal, otherwise this contract would have
+     * to implement one virtual function for each Task property.
+     */
     mapping(uint256 => Task) internal _tasks;
 
     /// @dev Mapping of access control id to balance.
@@ -23,6 +28,9 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
 
     /// @dev Mapping of taskId to address that already voted.
     mapping(uint256 => address) private _alreadyVoted;
+
+    /// @dev Mapping of address to its tasks.
+    mapping(address => uint256[]) private _countOfTasks;
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -56,11 +64,18 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             revert InvalidStatus(_task.status);
         }
 
+        uint256 balance = _balances[_task.creatorRole];
+        if (_task.reward > balance) {
+            revert InsufficientBalance(balance, _task.reward);
+        }
+
+        // Overflow not possible: taskId <= max uint256.
         unchecked {
             taskId++;
         }
 
         _tasks[taskId] = _task;
+        _countOfTasks[msg.sender].push(taskId);
 
         emit TaskCreated(
             taskId,
@@ -78,17 +93,21 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      */
     function startTask(
         uint256 _taskId,
-        uint256 _authId
+        uint256 _roleId
     )
         public
         virtual
-        onlyOperator(this.startTask.selector, _authId, msg.sender)
+        onlyOperator(this.startTask.selector, _roleId, msg.sender)
         returns (bool)
     {
         Task memory task = getTask(_taskId);
 
-        if (!_isAuthorized(task.authorized, _authId)) {
-            revert InvalidAuthorizationId(_authId);
+        if (task.status != Status.Created) {
+            revert InvalidStatus(task.status);
+        }
+
+        if (!_isRoleAllowed(task.authorizedRoles, _roleId)) {
+            revert InvalidRoleId(_roleId);
         }
 
         if (task.assignee == address(0)) {
@@ -99,11 +118,8 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             revert Unauthorized(msg.sender);
         }
 
-        if (task.status != Status.Created) {
-            revert InvalidStatus(task.status);
-        }
-
         _tasks[_taskId].status = Status.Progress;
+        _countOfTasks[task.assignee].push(_taskId);
 
         emit TaskStarted(_taskId, msg.sender);
 
@@ -115,18 +131,18 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      */
     function reviewTask(
         uint256 _taskId,
-        uint256 _authId,
+        uint256 _roleId,
         string memory _metadata
     )
         public
         virtual
-        onlyOperator(this.reviewTask.selector, _authId, msg.sender)
+        onlyOperator(this.reviewTask.selector, _roleId, msg.sender)
         returns (bool)
     {
         Task memory task = getTask(_taskId);
 
         if (task.assignee != msg.sender) {
-            if (task.creatorRole != _authId) {
+            if (task.creatorRole != _roleId) {
                 revert Unauthorized(msg.sender);
             }
         }
@@ -137,7 +153,6 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             revert InvalidStatus(task.status);
         }
 
-        emit TaskUpdated(_taskId, Status.Review);
         emit TaskReviewed(_taskId, msg.sender, _metadata);
 
         return true;
@@ -148,13 +163,23 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      */
     function completeTask(
         uint256 _taskId,
-        uint256 _authId
+        uint256 _roleId
     )
         public
         virtual
-        onlyOperator(this.completeTask.selector, _authId, msg.sender)
+        onlyOperator(this.completeTask.selector, _roleId, msg.sender)
         returns (bool)
     {
+        Task memory task = getTask(_taskId);
+
+        if (task.status != Status.Review) {
+            revert InvalidStatus(task.status);
+        }
+
+        if (task.creatorRole != _roleId) {
+            revert Unauthorized(msg.sender);
+        }
+
         if (_alreadyVoted[_taskId] == msg.sender) {
             revert AlreadyVoted(msg.sender);
         }
@@ -162,32 +187,18 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         _alreadyVoted[_taskId] = msg.sender;
         _approvals[_taskId]++;
 
-        Task memory task = getTask(_taskId);
-
-        if (task.creatorRole != _authId) {
-            revert Unauthorized(msg.sender);
-        }
-
-        if (task.status != Status.Review) {
-            revert InvalidStatus(task.status);
-        }
-
-        if (_approvals[_taskId] >= APPROVALS) {
+        if (_approvals[_taskId] == APPROVALS) {
             _tasks[_taskId].status = Status.Completed;
 
             _mint(task.assignee, _taskId);
 
-            if (task.reward > _balances[_authId]) {
-                revert InsufficientBalance(_balances[_authId], task.reward);
-            }
-
             (bool sent, ) = payable(task.assignee).call{value: task.reward}("");
-            if (!sent) {
-                revert InsufficientBalance(_balances[_authId], task.reward);
+            if (!sent || task.reward > _balances[_roleId]) {
+                revert InsufficientBalance(_balances[_roleId], task.reward);
             }
 
             emit TaskUpdated(_taskId, Status.Completed);
-            emit Withdraw(_authId, task.assignee, task.reward);
+            emit Withdraw(_roleId, task.assignee, task.reward);
         }
 
         return true;
@@ -198,11 +209,11 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      */
     function cancelTask(
         uint256 _taskId,
-        uint256 _authId
+        uint256 _roleId
     )
         public
         virtual
-        onlyOperator(this.cancelTask.selector, _authId, msg.sender)
+        onlyOperator(this.cancelTask.selector, _roleId, msg.sender)
         returns (bool)
     {
         Task memory task = getTask(_taskId);
@@ -234,11 +245,20 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     }
 
     /**
+     * @dev See {IWeb3Task-getTests}.
+     */
+    function getUserTasks(
+        address _address
+    ) public view returns (uint256[] memory) {
+        return _countOfTasks[_address];
+    }
+
+    /**
      * @dev See {IWeb3Task-deposit}.
      */
-    function deposit(uint256 _authId) public payable virtual returns (bool) {
-        _balances[_authId] = msg.value;
-        emit Deposit(_authId, msg.sender, msg.value);
+    function deposit(uint256 _roleId) public payable virtual returns (bool) {
+        _balances[_roleId] = msg.value;
+        emit Deposit(_roleId, msg.sender, msg.value);
         return true;
     }
 
@@ -246,28 +266,28 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      * @dev See {IWeb3Task-withdraw}.
      */
     function withdraw(
-        uint256 _authId,
+        uint256 _roleId,
         uint256 _amount
     )
         public
         virtual
-        onlyOperator(this.withdraw.selector, _authId, msg.sender)
+        onlyOperator(this.withdraw.selector, _roleId, msg.sender)
         returns (bool)
     {
-        uint256 balance = _balances[_authId];
+        uint256 balance = _balances[_roleId];
 
         if (balance < _amount) {
-            revert InsufficientBalance(_balances[_authId], _amount);
+            revert InsufficientBalance(_balances[_roleId], _amount);
         }
 
-        _balances[_authId] -= _amount;
+        _balances[_roleId] -= _amount;
 
         (bool sent, ) = payable(msg.sender).call{value: _amount}("");
         if (!sent) {
             revert InsufficientBalance(balance, _amount);
         }
 
-        emit Withdraw(_authId, msg.sender, _amount);
+        emit Withdraw(_roleId, msg.sender, _amount);
 
         return true;
     }
@@ -281,22 +301,27 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     }
 
     /**
-     * @dev Will loop in search for a valid authorizationId.
+     * @dev Will loop in search for a valid assignee's roleId.
      *
-     * Since the entire authorization mapping structure cannot be looped,
-     * we ask for the user to point the authorization he is using to call
+     * IMPORTANT: The user might be an operator of the `startTask`
+     * function, but might not have the assignee's roleId. In this
+     * case it will revert.
+     *
+     * Since the entire mapping for role structure cannot be looped,
+     * we ask for the user to point the role he is using to call
      * the function. We then check if the auth provided matches the any
      * of the initially auths, settled in the current task.
      */
-    function _isAuthorized(
-        uint256[] memory _authorized,
-        uint256 _authorizationId
+    function _isRoleAllowed(
+        uint256[] memory _authorizedRoles,
+        uint256 _roleId
     ) internal pure virtual returns (bool) {
-        for (uint256 i; i < _authorized.length; ) {
-            if (_authorized[i] == _authorizationId) {
+        for (uint256 i; i < _authorizedRoles.length; ) {
+            if (_authorizedRoles[i] == _roleId) {
                 return true;
             }
 
+            // Overflow not possible: i <= max uint256.
             unchecked {
                 i++;
             }
