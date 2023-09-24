@@ -45,7 +45,13 @@ describe("Web3Task", function () {
 
 	it("should fund the authorizationId (Role) {leader = 5}", async function () {
 		await Web3Task.connect(owner).deposit(leaderId, {
-			value: ethers.utils.parseEther("5"),
+			value: ethers.utils.parseEther("10"),
+		});
+	});
+
+	it("should fund the authorizationId (Role) {memberId = 10}", async function () {
+		await Web3Task.connect(owner).deposit(memberId, {
+			value: ethers.utils.parseEther("50"),
 		});
 	});
 
@@ -67,33 +73,33 @@ describe("Web3Task", function () {
 	});
 
 	it("should create new authorizations { leader, member }", async function () {
-		expect(await Web3Task.setAuthorization(leaderId, userA.address, true))
+		expect(await Web3Task.setRole(leaderId, userA.address, true))
 			.to.emit(Web3Task, "AuthorizePersonnel")
 			.withArgs(leaderId, userA.address, true);
-		expect(await Web3Task.setAuthorization(leaderId, userB.address, true))
+		expect(await Web3Task.setRole(leaderId, userB.address, true))
 			.to.emit(Web3Task, "AuthorizePersonnel")
 			.withArgs(leaderId, userB.address, true);
-		expect(await Web3Task.setAuthorization(memberId, userC.address, true))
+		expect(await Web3Task.setRole(memberId, userC.address, true))
 			.to.emit(Web3Task, "AuthorizePersonnel")
 			.withArgs(memberId, userC.address, true);
 	});
 
 	it("should failed to create new authorizations { id = 0 }", async function () {
 		await expect(
-			Web3Task.setAuthorization(0, userA.address, true)
-		).to.be.revertedWithCustomError(Web3Task, "InvalidAuthId");
+			Web3Task.setRole(0, userA.address, true)
+		).to.be.revertedWithCustomError(Web3Task, "InvalidRoleId");
 	});
 
 	it("should failed to create new operator { id = 1 }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("createTask");
 		expect(
 			await Web3Task.setOperator(interfaceId, leaderId, true)
-		).to.be.revertedWithCustomError(Web3Task, "InvalidAuthId");
+		).to.be.revertedWithCustomError(Web3Task, "InvalidRoleId");
 	});
 
 	it("should failed to create new authorizations { sender != owner }", async function () {
 		await expect(
-			Web3Task.connect(userA).setAuthorization(leaderId, userA.address, true)
+			Web3Task.connect(userA).setRole(leaderId, userA.address, true)
 		).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
 	});
 
@@ -107,7 +113,7 @@ describe("Web3Task", function () {
 
 	it("should create new operator { startTask }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("startTask");
-		expect(await Web3Task.setOperator(interfaceId, memberId, true))
+		await expect(await Web3Task.setOperator(interfaceId, memberId, true))
 			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, memberId, true);
 		expect(await Web3Task.isOperator(interfaceId, memberId)).to.be.equal(true);
@@ -187,7 +193,7 @@ describe("Web3Task", function () {
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
 			endDate: ethers.constants.MaxUint256,
-			authorized: [memberId],
+			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userC.address,
 			metadata: "ipfs://0xc0/",
@@ -210,7 +216,7 @@ describe("Web3Task", function () {
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
 			endDate: ethers.constants.MaxUint256,
-			authorized: [memberId],
+			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userB.address,
 			metadata: "ipfs://0xc0/",
@@ -228,7 +234,7 @@ describe("Web3Task", function () {
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
 			endDate: ethers.constants.MaxUint256,
-			authorized: [memberId],
+			authorizedRoles: [memberId],
 			creatorRole: 200,
 			assignee: userB.address,
 			metadata: "ipfs://0xc0/",
@@ -246,7 +252,7 @@ describe("Web3Task", function () {
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
 			endDate: ethers.constants.MaxUint256,
-			authorized: [memberId],
+			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userB.address,
 			metadata: "ipfs://0xc0/",
@@ -266,7 +272,7 @@ describe("Web3Task", function () {
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
 			endDate: expiredDate - 1,
-			authorized: [memberId],
+			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userB.address,
 			metadata: "ipfs://0xc0/",
@@ -278,11 +284,9 @@ describe("Web3Task", function () {
 	});
 
 	it("should set title", async function () {
-		expect(
-			await Web3Task.connect(userA).setTitle(createdTaskId, leaderId, taskTitle)
-		)
+		expect(await Web3Task.connect(userA).setTitle(createdTaskId, taskTitle))
 			.to.emit(Web3Task, "TitleUpdated")
-			.withArgs(createdTaskId);
+			.withArgs(createdTaskId, taskTitle);
 		const task = await Web3Task.getTask(createdTaskId);
 		expect(task.title).to.equal(taskTitle);
 	});
@@ -291,33 +295,28 @@ describe("Web3Task", function () {
 		expect(
 			await Web3Task.connect(userA).setDescription(
 				createdTaskId,
-				leaderId,
 				taskDescription
 			)
 		)
 			.to.emit(Web3Task, "TitleUpdated")
-			.withArgs(createdTaskId);
+			.withArgs(createdTaskId, taskDescription);
 		const task = await Web3Task.getTask(createdTaskId);
 		expect(task.description).to.equal(taskDescription);
 	});
 
 	it("should set endDate", async function () {
-		const target = Math.floor(Date.now() / 1000) + 3600;
-		expect(
-			await Web3Task.connect(userA).setEndDate(createdTaskId, leaderId, target)
-		)
+		const targetDate = Math.floor(Date.now() / 1000) + 3600;
+		expect(await Web3Task.connect(userA).setEndDate(createdTaskId, targetDate))
 			.to.emit(Web3Task, "TitleUpdated")
-			.withArgs(createdTaskId);
+			.withArgs(createdTaskId, targetDate);
 		const task = await Web3Task.getTask(createdTaskId);
-		expect(task.endDate).to.equal(target);
+		expect(task.endDate).to.equal(targetDate);
 	});
 
 	it("should set metadata", async function () {
-		expect(
-			await Web3Task.connect(userA).setTitle(createdTaskId, leaderId, taskTitle)
-		)
+		expect(await Web3Task.connect(userA).setTitle(createdTaskId, taskTitle))
 			.to.emit(Web3Task, "MetadataUpdated")
-			.withArgs(createdTaskId);
+			.withArgs(createdTaskId, taskTitle);
 		const task = await Web3Task.getTask(createdTaskId);
 		expect(task.title).to.equal(taskTitle);
 	});
@@ -379,10 +378,8 @@ describe("Web3Task", function () {
 	});
 
 	it("should set title failure", async function () {
-		await expect(
-			Web3Task.connect(userA).setTitle(createdTaskId, leaderId, taskTitle)
-		)
+		await expect(Web3Task.connect(userA).setTitle(createdTaskId, taskTitle))
 			.to.be.revertedWithCustomError(Web3Task, "TaskCannotBeChanged")
-			.withArgs(createdTaskId);
+			.withArgs(createdTaskId, Status.Canceled);
 	});
 });

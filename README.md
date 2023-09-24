@@ -49,8 +49,8 @@ Regarding Task management, the following features are implemented:
 
 To manage the Access Control of users, the following methods are implemented:
 
-- Set Authorization: Sets the authorization id of an address.
-- Set Operator: Sets which authorization id can manage the contract functions.
+- Set Role: Sets the role id for an address as true,
+- Set Operator: Sets which role id can manage the contract functions.
 
 ## Contracts
 

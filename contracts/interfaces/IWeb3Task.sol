@@ -13,11 +13,6 @@ interface IWeb3Task {
     error InsufficientBalance(uint256 balance, uint256 withdrawAmount);
 
     /**
-     * @dev Emitted when `` is not authorized to operate the contract.
-     */
-    error InvalidAuthorizationId(uint256 authorizationId);
-
-    /**
      * @dev Emitted when `endDate` is less than `block.timestamp`.
      */
     error InvalidEndDate(uint256 endDate, uint256 blockTimestamp);
@@ -100,7 +95,7 @@ interface IWeb3Task {
         string description;
         uint256 reward;
         uint256 endDate;
-        uint256[] authorized;
+        uint256[] authorizedRoles;
         uint256 creatorRole;
         address assignee;
         string metadata;

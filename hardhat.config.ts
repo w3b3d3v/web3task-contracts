@@ -6,7 +6,16 @@ dotenv.config();
 const { POLYGON_URL, MUMBAI_URL, PRIVATE_KEY, ETHERSCAN_KEY } = process.env;
 
 const config: HardhatUserConfig = {
-	solidity: "0.8.20",
+	solidity: {
+		version: "0.8.20",
+		settings: {
+			optimizer: {
+				enabled: true,
+				runs: 200,
+			},
+		},
+	},
+	allowUnlimitedContractSize: true,
 	networks: {
 		hardhat: {
 			chainId: 31337,
