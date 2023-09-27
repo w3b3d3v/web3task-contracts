@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Web3Task} from "./Web3Task.sol";
 import {AccessControl} from "./AccessControl.sol";
-import {Multicall} from "@openzeppelin/contracts/utils/Multicall.sol";
+import {Multicall} from "./Multicall.sol";
 
 contract TasksManager is AccessControl, Web3Task, Multicall {
     /// @dev Emitted when a task cannot be changed.
