@@ -66,6 +66,29 @@ yarn
 npm i
 ```
 
+## Setting Up Local Blockchain
+
+Run a Hardhat node:
+
+```bash
+npx hardhat node
+```
+
+The node will generate some accounts. Add the first one to Metamask.
+> **_NOTE:_** Note: Use the first account to avoid errors.
+
+## Deploying Smart Contracts Local Blockchain
+
+Deploy the TaskManager contract
+```bash
+npx hardhat run --network localhost scripts/deploy.ts
+```
+
+Funding the Contract
+```bash
+npx hardhat run --network localhost scripts/fundingContract.ts
+```
+
 ## Livenet Deployment
 
 Remove the `.sample` from the `.env.sample` file and fill in the values with the corresponding API from RPC providers.
