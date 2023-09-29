@@ -7,8 +7,8 @@ async function main() {
 
 	const Contract = await Factory.deploy({
 		gasLimit: 10000000,
-		maxPriorityFeePerGas: 10000000,
-		maxFeePerGas: 10000000,
+		maxPriorityFeePerGas: 200000000000,
+		maxFeePerGas: 200000000000,
 	});
 
 	console.log(
