@@ -113,11 +113,10 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         if (task.assignee == address(0)) {
             _tasks[_taskId].assignee = msg.sender;
         }
-
-        if (task.assignee != msg.sender) {
+        else if (task.assignee != msg.sender) {
             revert Unauthorized(msg.sender);
         }
-
+        
         _tasks[_taskId].status = Status.Progress;
         _countOfTasks[task.assignee].push(_taskId);
 
