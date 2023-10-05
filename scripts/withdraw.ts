@@ -8,10 +8,7 @@ async function main() {
 
     const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
-    for (let i = 0; i <= 50; i++) {
-        const getTaskResponse = await contract.getTask(i);
-        console.log('GetTaskResponse = ', getTaskResponse);
-    }
+    await contract.withdraw(10, { value: ethers.utils.parseEther('100') });
 }
 
 main().catch((error) => {

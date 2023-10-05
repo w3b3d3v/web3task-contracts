@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import abi from "../artifacts/contracts/Web3Task.sol/Web3Task.json"
+import abi from "../artifacts/contracts/TasksManager.sol/TasksManager.json"
 
 const { CONTRACT_ADDRESS } = process.env;
 
@@ -8,10 +8,10 @@ async function main() {
 
     const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
-    for (let i = 0; i <= 50; i++) {
-        const getTaskResponse = await contract.getTask(i);
-        console.log('GetTaskResponse = ', getTaskResponse);
-    }
+    await contract.startTask(8,3, {
+		maxPriorityFeePerGas: 200000000000,
+		maxFeePerGas: 200000000000,
+	});
 }
 
 main().catch((error) => {
