@@ -44,9 +44,12 @@ describe("Web3Task", function () {
 	});
 
 	it("should fund the authorizationId (Role) {leader = 5}", async function () {
+		const amount = ethers.utils.parseEther("10");
 		await Web3Task.connect(owner).deposit(leaderId, {
-			value: ethers.utils.parseEther("10"),
+			value: amount,
 		});
+		const balance = await Web3Task.getBalance(leaderId);
+		expect(balance).to.equal(amount);
 	});
 
 	it("should fund the authorizationId (Role) {memberId = 10}", async function () {

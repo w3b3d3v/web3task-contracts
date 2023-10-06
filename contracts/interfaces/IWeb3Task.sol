@@ -231,6 +231,14 @@ interface IWeb3Task {
     function getTask(uint256 taskId) external view returns (Task memory);
 
     /**
+     * @dev This function returns the balance of a given authorization role.
+     *
+     * NOTE! It will return 0 if the authorization role does not exist or
+     * if the authorization role has not received any deposit.
+     */
+    function getBalance(uint256 roleId) external view virtual returns (uint256);
+
+    /**
      * @dev This function allows to deposit funds into the contract into
      * a specific authorization role.
      *
