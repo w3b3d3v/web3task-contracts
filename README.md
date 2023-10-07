@@ -54,6 +54,8 @@ To manage the Access Control of users, the following methods are implemented:
 - Set Role: Sets the role id for an address as true,
 - Set Operator: Sets which role id can manage the contract functions.
 
+Note that every function in the contract must have a role id assigned to operate it, as well as an address authorized by a role id.
+
 ## Contracts
 
 - TaskManager: The main contract that manages the tasks.
