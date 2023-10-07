@@ -11,7 +11,7 @@ Project is currently under the MvP stage. The following features will be impleme
 - Ranking
 - Proxy
 - Fee Mechanism
-- Deployment for 3rd-parties
+- Deployment for 3rd-parties (Multiple projects using the same contract to optimize front-end indexing)
 
 if you are a developer and want to contribute to this features, please contact us as we are still in the conception phase of them.
 
@@ -75,16 +75,19 @@ npx hardhat node
 ```
 
 The node will generate some accounts. Add the first one to Metamask.
+
 > **_NOTE:_** Note: Use the first account to avoid errors.
 
 ## Deploying Smart Contracts Local Blockchain
 
 Deploy the TaskManager contract
+
 ```bash
 npx hardhat run --network localhost scripts/deploy.ts
 ```
 
 Funding the Contract
+
 ```bash
 npx hardhat run --network localhost scripts/fundingContract.ts
 ```

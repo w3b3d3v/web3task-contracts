@@ -236,6 +236,10 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         Task memory task = _tasks[_taskId];
 
         if (task.endDate < block.timestamp) {
+            if (task.endDate == 0) {
+                revert InvalidTaskId(_taskId);
+            }
+
             task.status = Status.Canceled;
         }
 

@@ -23,6 +23,11 @@ interface IWeb3Task {
     error InvalidStatus(Status status);
 
     /**
+     * @dev Emitted when `taskId` is not valid when calling {Web3Task-getTask}.
+     */
+    error InvalidTaskId(uint256 taskId);
+
+    /**
      * @dev Emmited when the minimum `APPROVALS` to complete a task is updated.
      */
     event QuorumUpdated(uint256 value);
@@ -226,7 +231,8 @@ interface IWeb3Task {
      * Requirements:
      *
      * - `_taskId` must exist.
-     * - `task.endDate` must be greater than `block.timestamp
+     * - `task.endDate` must be greater than `block.timestamp, otherwise
+     *  the task is considered expired.
      */
     function getTask(uint256 taskId) external view returns (Task memory);
 
