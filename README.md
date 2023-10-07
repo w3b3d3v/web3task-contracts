@@ -47,6 +47,8 @@ Regarding Task management, the following features are implemented:
 - Edit Deadline
 - Edit Metadata
 
+Note that editing sensitive information that might affect the task assignee will not be allowed.
+
 To manage the Access Control of users, the following methods are implemented:
 
 - Set Role: Sets the role id for an address as true,
