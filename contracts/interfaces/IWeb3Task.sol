@@ -18,11 +18,6 @@ interface IWeb3Task {
     error InvalidEndDate(uint256 endDate, uint256 blockTimestamp);
 
     /**
-     * @dev Emmited when `reward` is 0 or less than 0
-     */
-    error InvalidReward(uint256 reward);
-
-    /**
      * @dev Emitted when `status` provided mismatches the one asked by the function.
      */
     error InvalidStatus(Status status);

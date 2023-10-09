@@ -69,10 +69,6 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             revert InsufficientBalance(balance, _task.reward);
         }
 
-        if (_task.reward <= 0) {
-            revert InvalidReward(_task.reward);
-        }
-
         // Overflow not possible: taskId <= max uint256.
         unchecked {
             taskId++;
@@ -318,7 +314,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      *
      * Since the entire mapping for role structure cannot be looped,
      * we ask for the user to point the role he is using to call
-     * the function. We then check if the auth provided matches  any
+     * the function. We then check if the auth provided matches any
      * of the initially auths, settled in the current task.
      */
     function _isRoleAllowed(

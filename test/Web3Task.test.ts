@@ -384,7 +384,7 @@ describe("Web3Task", function () {
   });
 
   //New-test - Testing setting minQuorum with no owner
-  it("should fail to set  the minimum quorum when the caller is not the owner", async function () {
+  it("should fail to set the minimum quorum when the caller is not the owner", async function () {
     const initialQuorum = 2;
     const newValue = 5;
     await expect(
@@ -400,7 +400,7 @@ describe("Web3Task", function () {
   });
 
   //New-test - Testing creating a task with an invalid status (1 - 4)
-  it("should falied to create new task ( invalid status - Progress (1), Review (2), Completed (3), Canceled (4) )", async function () {
+  it("should fail to create new task ( invalid status - Progress (1), Review (2), Completed (3), Canceled (4) )", async function () {
     const invalidStatuses = [1, 2, 3, 4];
     for (const status of invalidStatuses) {
       const Task = {
@@ -461,22 +461,6 @@ describe("Web3Task", function () {
     await expect(
       Web3Task.connect(userA).createTask(Task)
     ).to.be.revertedWithCustomError(Web3Task, "InvalidReward");
-  });
-
-  //New-test - Testing creating a task with an invalid reward (negative value)
-  it("should fail to create new task (invalid reward - negative value)", async function () {
-    const Task = {
-      status: 0,
-      title: "invalid reward",
-      description: "Não esquecer",
-      reward: ethers.utils.parseEther("-2"),
-      endDate: ethers.constants.MaxUint256,
-      authorizedRoles: [memberId],
-      creatorRole: leaderId,
-      assignee: userB.address,
-      metadata: "ipfs://0xc0/",
-    };
-    await expect(Web3Task.connect(userA).createTask(Task)).to.be.rejected;
   });
 
   //New-test - Testing creating a task with an invalid reward (greater than the balance)
@@ -741,9 +725,11 @@ describe("Web3Task", function () {
     const receipt = await tx.wait();
     const taskId = receipt.events[0].args[0];
     createdTaskId = taskId;
+
     let interfaceId = Web3Task.interface.getSighash("startTask");
     await Web3Task.connect(owner).setOperator(interfaceId, leaderId, true);
     await Web3Task.connect(userA).startTask(createdTaskId, leaderId);
+
     interfaceId = Web3Task.interface.getSighash("reviewTask");
     await Web3Task.connect(owner).setOperator(interfaceId, leaderId, true);
     await Web3Task.connect(userA).reviewTask(
@@ -751,6 +737,7 @@ describe("Web3Task", function () {
       leaderId,
       "ipfs://0xc1/"
     );
+
     interfaceId = Web3Task.interface.getSighash("completeTask");
     await Web3Task.connect(owner).setOperator(interfaceId, leaderId, true);
     await Web3Task.connect(userA).completeTask(createdTaskId, leaderId);
@@ -847,6 +834,7 @@ describe("Web3Task", function () {
     // Check if the count has increased by 3
     expect(finalCount).to.equal(initialCount + 3);
   });
+
   it("should fail to withdraw (Amount higher than Balance)", async function () {
     let interfaceId = Web3Task.interface.getSighash("withdraw");
     await Web3Task.connect(owner).setOperator(interfaceId, leaderId, true);
