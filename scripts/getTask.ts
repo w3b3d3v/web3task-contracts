@@ -5,13 +5,9 @@ const { CONTRACT_ADDRESS } = process.env;
 
 async function main() {
     const [signer] = await ethers.getSigners();
-
     const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
-
-    for (let i = 0; i <= 50; i++) {
-        const getTaskResponse = await contract.getTask(i);
-        console.log('GetTaskResponse = ', getTaskResponse);
-    }
+    const getTaskResponse = await contract.getTask(1);
+    console.log('GetTaskResponse = ', getTaskResponse);
 }
 
 main().catch((error) => {

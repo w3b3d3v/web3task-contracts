@@ -4,9 +4,9 @@ import abi from "../artifacts/contracts/TasksManager.sol/TasksManager.json";
 const { CONTRACT_ADDRESS } = process.env;
 
 async function main() {
-    const [signer] = await ethers.getSigners();
+	const [signer] = await ethers.getSigners();
 	/// Get the signer and connect to the contract
-    const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
+	const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
 	/// Prepare the encoding of data and submit it to the contract
 	const payloadArray = [];

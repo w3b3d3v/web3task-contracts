@@ -5,15 +5,13 @@ const { CONTRACT_ADDRESS } = process.env;
 
 async function main() {
     const [signer] = await ethers.getSigners();
-
     const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
+    let sigHash = contract.interface.getSighash("createTask");
 
-	let sigHash = contract.interface.getSighash("createTask");
-    
     await contract.setOperator(sigHash, 99, true, {
-		maxPriorityFeePerGas: 200000000000,
-		maxFeePerGas: 200000000000,
-	});
+        maxPriorityFeePerGas: 200000000000,
+        maxFeePerGas: 200000000000,
+    });
 }
 
 main().catch((error) => {

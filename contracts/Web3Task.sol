@@ -112,11 +112,10 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
 
         if (task.assignee == address(0)) {
             _tasks[_taskId].assignee = msg.sender;
-        }
-        else if (task.assignee != msg.sender) {
+        } else if (task.assignee != msg.sender) {
             revert Unauthorized(msg.sender);
         }
-        
+
         _tasks[_taskId].status = Status.Progress;
         _countOfTasks[task.assignee].push(_taskId);
 
@@ -237,6 +236,10 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         Task memory task = _tasks[_taskId];
 
         if (task.endDate < block.timestamp) {
+            if (task.endDate == 0) {
+                revert InvalidTaskId(_taskId);
+            }
+
             task.status = Status.Canceled;
         }
 
@@ -250,6 +253,13 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         address _address
     ) public view returns (uint256[] memory) {
         return _countOfTasks[_address];
+    }
+
+    /**
+     * @dev See {IWeb3Task-getBalance}.
+     */
+    function getBalance(uint256 _roleId) public view virtual returns (uint256) {
+        return _balances[_roleId];
     }
 
     /**
