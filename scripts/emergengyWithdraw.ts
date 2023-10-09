@@ -7,11 +7,7 @@ async function main() {
     const [signer] = await ethers.getSigners();
     const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
-    await contract.deposit(99, {
-        value: ethers.utils.parseEther('5'),
-        maxPriorityFeePerGas: 200000000000,
-        maxFeePerGas: 200000000000
-    });
+    await contract.emergengyWithdraw();
 }
 
 main().catch((error) => {

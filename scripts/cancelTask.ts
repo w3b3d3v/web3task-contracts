@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import abi from "../artifacts/contracts/Web3Task.sol/Web3Task.json"
+import abi from "../artifacts/contracts/TasksManager.sol/TasksManager.json"
 
 const { CONTRACT_ADDRESS } = process.env;
 
@@ -7,10 +7,9 @@ async function main() {
     const [signer] = await ethers.getSigners();
     const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
-    await contract.deposit(99, {
-        value: ethers.utils.parseEther('5'),
+    await contract.cancelTask(9, 99, {
         maxPriorityFeePerGas: 200000000000,
-        maxFeePerGas: 200000000000
+        maxFeePerGas: 200000000000,
     });
 }
 

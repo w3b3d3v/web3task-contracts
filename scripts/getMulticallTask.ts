@@ -1,14 +1,12 @@
 import { ethers } from "hardhat";
 import abi from "../artifacts/contracts/TasksManager.sol/TasksManager.json";
 
+const { CONTRACT_ADDRESS } = process.env;
+
 async function main() {
-	/// Get the signer and connect to the contract
 	const [signer] = await ethers.getSigners();
-	const contract = new ethers.Contract(
-		"0xec20dcbf0380f1c9856ee345af41f62ee45a95a1",
-		abi.abi,
-		signer
-	);
+	/// Get the signer and connect to the contract
+	const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
 	/// Prepare the encoding of data and submit it to the contract
 	const payloadArray = [];
