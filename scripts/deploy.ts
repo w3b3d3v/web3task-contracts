@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import { saveFrontendFiles } from "../utils/AbiToFrontend"
 const fs = require('fs');
 const path = require('path');
 const filePath = path.join(__dirname, '../.env');
@@ -11,6 +12,9 @@ async function main() {
 		maxPriorityFeePerGas: 200000000000,
 		maxFeePerGas: 200000000000,
 	});
+
+	const chain = await deployer.getChainId();
+	saveFrontendFiles(Contract, chain)
 
 	console.log(
 		"Deploying the Web3Task contract with the address:",
