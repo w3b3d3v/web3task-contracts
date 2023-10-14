@@ -1,8 +1,5 @@
 import { ethers } from "hardhat";
-import { saveFrontendFiles } from "../utils/AbiToFrontend"
-const fs = require('fs');
-const path = require('path');
-const filePath = path.join(__dirname, '../.env');
+import { saveContractAddress, saveFrontendFiles } from "../utils/saveDataContract"
 
 async function main() {
 	const [deployer] = await ethers.getSigners();
@@ -21,10 +18,7 @@ async function main() {
 		deployer.address
 	);
 
-	fs.readFile(filePath, 'utf8', (_, data) => {
-		const newContent = data.replace(new RegExp("CONTRACT_ADDRESS=.*"), `CONTRACT_ADDRESS=${Contract.address}`);
-		fs.writeFile(filePath, newContent, 'utf8', _ => { });
-	});
+	saveContractAddress(Contract.address)
 
 	console.log("Contract deployed to:", Contract.address);
 }
