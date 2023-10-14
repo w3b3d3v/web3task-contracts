@@ -40,3 +40,24 @@ export async function saveFrontendFiles(contract: Contract, chain: any) {
 
 
 }
+
+export function saveContractAddress(contractAddress: string) {
+    const filePath = path.join(__dirname, '../.env');
+
+    fs.readFile(filePath, 'utf8', (readErr: any, data: string) => {
+        if (readErr) {
+            console.error('Error reading .env file:', readErr);
+            return;
+        }
+
+        const newContent = data.replace(new RegExp("CONTRACT_ADDRESS=.*"), `CONTRACT_ADDRESS=${contractAddress}`);
+
+        fs.writeFile(filePath, newContent, 'utf8', (writeErr: any) => {
+            if (writeErr) {
+                console.error('Error writing to .env file:', writeErr);
+            } else {
+                console.log('Contract address saved in .env file:', contractAddress);
+            }
+        });
+    });
+}
