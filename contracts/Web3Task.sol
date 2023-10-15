@@ -7,17 +7,12 @@ import {IWeb3Task} from "./interfaces/IWeb3Task.sol";
 
 abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     /// @dev Current taskId, aslo used as token id.
-    uint256 public taskId;
+    uint256 private taskId;
 
     /// @dev Amount of necessary approvals to finish a task.
-    uint256 public APPROVALS = 2;
+    uint256 private APPROVALS = 2;
 
-    /**
-     * @dev Mapping of taskId to Task.
-     *
-     * This will remain as internal, otherwise this contract would have
-     * to implement one virtual function for each Task property.
-     */
+    ///@dev Mapping of taskId to Task.
     mapping(uint256 => Task) internal _tasks;
 
     /// @dev Mapping of access control id to balance.
@@ -185,7 +180,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         _alreadyVoted[_taskId] = msg.sender;
         _approvals[_taskId]++;
 
-        if (_approvals[_taskId] == APPROVALS) {
+        if (_approvals[_taskId] >= APPROVALS) {
             _tasks[_taskId].status = Status.Completed;
 
             _mint(task.assignee, _taskId);
@@ -263,6 +258,20 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     }
 
     /**
+     * @dev See {IWeb3Task-getTaskId}.
+     */
+    function getTaskId() public view virtual returns (uint256) {
+        return taskId;
+    }
+
+    /**
+     * @dev See {IWeb3Task-getMinQuorum}.
+     */
+    function getMinQuorum() public view virtual returns (uint256) {
+        return APPROVALS;
+    }
+
+    /**
      * @dev See {IWeb3Task-deposit}.
      */
     function deposit(uint256 _roleId) public payable virtual returns (bool) {
@@ -318,7 +327,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      *
      * Since the entire mapping for role structure cannot be looped,
      * we ask for the user to point the role he is using to call
-     * the function. We then check if the auth provided matches the any
+     * the function. We then check if the auth provided matches any
      * of the initially auths, settled in the current task.
      */
     function _isRoleAllowed(
