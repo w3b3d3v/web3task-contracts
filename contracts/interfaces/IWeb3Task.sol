@@ -242,7 +242,23 @@ interface IWeb3Task {
      * NOTE! It will return 0 if the authorization role does not exist or
      * if the authorization role has not received any deposit.
      */
-    function getBalance(uint256 roleId) external view virtual returns (uint256);
+    function getBalance(uint256 roleId) external view returns (uint256);
+
+    /**
+     * @dev This function returns the last taskId created.
+     *
+     * NOTE! taskId is an incremental number that starts at 1.
+     * If no task was created, it will return 0.
+     */
+    function getTaskId() external view returns (uint256);
+
+    /**
+     * @dev This function returns the minimum approvals required to complete a task.
+     *
+     * NOTE! The Quorum can be updated by the contract owner. And it will
+     * emit a {QuorumUpdated} event.
+     */
+    function getMinQuorum() external view returns (uint256);
 
     /**
      * @dev This function allows to deposit funds into the contract into
