@@ -1,0 +1,70 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: TasksManager
+    network: localhost
+    source:
+      address: "0xeC20dCBf0380F1C9856Ee345aF41F62Ee45a95a1"
+      abi: TasksManager
+      startBlock: 38359528
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - AuthorizeOperator
+        - AuthorizePersonnel
+        - Deposit
+        - DescriptionUpdated
+        - EndDateUpdated
+        - MetadataUpdated
+        - QuorumUpdated
+        - TaskCreated
+        - TaskReviewed
+        - TaskStarted
+        - TaskUpdated
+        - TitleUpdated
+        - Transfer
+        - Withdraw
+      abis:
+        - name: TasksManager
+          file: ./abis/TasksManager.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: AuthorizeOperator(indexed bytes4,indexed uint256,bool)
+          handler: handleAuthorizeOperator
+        - event: AuthorizePersonnel(indexed uint256,indexed address,bool)
+          handler: handleAuthorizePersonnel
+        - event: Deposit(indexed uint256,indexed address,uint256)
+          handler: handleDeposit
+        - event: DescriptionUpdated(indexed uint256,string)
+          handler: handleDescriptionUpdated
+        - event: EndDateUpdated(indexed uint256,uint256)
+          handler: handleEndDateUpdated
+        - event: MetadataUpdated(indexed uint256,string)
+          handler: handleMetadataUpdated
+        - event: QuorumUpdated(uint256)
+          handler: handleQuorumUpdated
+        - event: TaskCreated(indexed uint256,indexed address,indexed
+            address,uint256,uint256)
+          handler: handleTaskCreated
+        - event: TaskReviewed(indexed uint256,indexed address,string)
+          handler: handleTaskReviewed
+        - event: TaskStarted(indexed uint256,indexed address)
+          handler: handleTaskStarted
+        - event: TaskUpdated(indexed uint256,uint8)
+          handler: handleTaskUpdated
+        - event: TitleUpdated(indexed uint256,string)
+          handler: handleTitleUpdated
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Withdraw(indexed uint256,indexed address,uint256)
+          handler: handleWithdraw
+      file: ./src/tasks-manager.ts
