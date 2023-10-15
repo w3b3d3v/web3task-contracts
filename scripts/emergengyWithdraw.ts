@@ -6,7 +6,6 @@ const { CONTRACT_ADDRESS } = process.env;
 async function main() {
     const [signer] = await ethers.getSigners();
     const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
-
     await contract.emergengyWithdraw();
 }
 
