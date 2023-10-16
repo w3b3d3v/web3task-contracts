@@ -266,6 +266,15 @@ interface IWeb3Task {
     function getScore(address addr) external view returns (uint256);
 
     /**
+     * @dev This function returns a boolean if the `addr` has voted for
+     * a specific task.
+     */
+    function hasVoted(
+        uint256 taskId,
+        address addr
+    ) external view returns (bool);
+
+    /**
      * @dev This function allows to deposit funds into the contract into
      * a specific authorization role.
      *

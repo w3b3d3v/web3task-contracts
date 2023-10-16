@@ -27,7 +27,7 @@ async function main() {
 			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [10, 3],
 			creatorRole: 5,
-			assignee: "0xa607c9d1913009356E2Eb97D0c526e7c0A5a86a4",
+			assignee: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
 			metadata:
 				"https://ipfs.io/ipfs/QmY5DnoeR8KvFQbf2swJcSZrBfXo4icnMuzrjGvj6q7CEh",
 		};
