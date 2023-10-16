@@ -3,7 +3,8 @@ import "@nomicfoundation/hardhat-toolbox";
 import dotenv from "dotenv";
 dotenv.config();
 
-const { POLYGON_URL, MUMBAI_URL, PRIVATE_KEY, ETHERSCAN_KEY } = process.env;
+const { POLYGON_URL, MUMBAI_URL, PRIVATE_KEY_LEADER, ETHERSCAN_KEY } =
+	process.env;
 
 const config: HardhatUserConfig = {
 	solidity: {
@@ -26,11 +27,11 @@ const config: HardhatUserConfig = {
 		},
 		mumbai: {
 			url: `${MUMBAI_URL}`,
-			accounts: [`${PRIVATE_KEY}`],
+			accounts: [`${PRIVATE_KEY_LEADER}`],
 		},
 		polygon: {
 			url: `${POLYGON_URL}`,
-			accounts: [`${PRIVATE_KEY}`],
+			accounts: [`${PRIVATE_KEY_LEADER}`],
 		},
 	},
 	gasReporter: {

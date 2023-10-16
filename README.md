@@ -78,22 +78,30 @@ Run a Hardhat node:
 npx hardhat node
 ```
 
-The node will generate some accounts. Add the first one to Metamask.
+The node will generate some accounts. You can realize they are already set at .env.sample, you should just let it be.
 
-> **_NOTE:_** Note: Use the first account to avoid errors.
+Add the first one to Metamask to be the leader and the second to be the member. The account will be:
 
-## Deploying Smart Contracts Local Blockchain
-
-Deploy the TaskManager contract
-
-```bash
-npx hardhat run --network localhost scripts/deploy.ts
+```
+0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 ```
 
-Funding the Contract
+To add the localhost network to metamask, click on the network dropdown and select `Custom RPC`. Fill in the following fields:
+
+- Network Name: `localhost`
+- New RPC URL: `http://localhost:8545`
+- Chain ID: `31337`
+- Currency Symbol: `ETH`
+
+> **_NOTE:_** Use the recommended accounts to avoid errors.
+
+## Deploying Smart Contracts in the Localhost
+
+Makefile will set everything for us, just run:
 
 ```bash
-npx hardhat run --network localhost scripts/fundingContract.ts
+make mocks
 ```
 
 ## Livenet Deployment
@@ -103,6 +111,8 @@ Remove the `.sample` from the `.env.sample` file and fill in the values with the
 ## Usage
 
 If you are not using livenet, you should comment chain condigurations at `hardhat.config.ts` or mock the keys in the `.env` file, otherwise you will get an error from hardhat.
+
+To run all the unitary tests, run:
 
 ```bash
 yarn test
