@@ -78,11 +78,33 @@ Run a Hardhat node:
 npx hardhat node
 ```
 
-The node will generate some accounts. Add the first one to Metamask.
+The node will generate some accounts. You can realize they are already set at .env.sample, you should just let it be.
+
+Add the first one to Metamask to be the leader and the second to be the member. The account will be:
+
+```
+0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+```
+
+To add the localhost network to metamask, click on the network dropdown and select `Custom RPC`. Fill in the following fields:
+
+- Network Name: `localhost`
+- New RPC URL: `http://localhost:8545`
+- Chain ID: `31337`
+- Currency Symbol: `ETH`
 
 > **_NOTE:_** Note: Use the first account to avoid errors.
 
 ## Deploying Smart Contracts Local Blockchain
+
+### Makefile for setting everything automatically
+
+```bash
+make mocks
+```
+
+### Individualy calling the scripts
 
 Deploy the TaskManager contract
 
@@ -94,6 +116,14 @@ Funding the Contract
 
 ```bash
 npx hardhat run --network localhost scripts/fundingContract.ts
+```
+
+Setting Access Controls
+For test purposes, leader has id = 10 and member has id = 5.
+
+```bash
+npx hardhat run --network localhost scripts/setRole.ts
+npx hardhat run --network localhost scripts/setOperator.ts
 ```
 
 ## Livenet Deployment
