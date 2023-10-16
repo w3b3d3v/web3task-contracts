@@ -57,10 +57,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         onlyOperator(this.createTask.selector, _task.creatorRole, msg.sender)
         returns (uint256)
     {
-        if (
-            _task.endDate < block.timestamp ||
-            _task.endDate > block.timestamp + 15 days
-        ) {
+        if (_task.endDate < block.timestamp) {
             revert InvalidEndDate(_task.endDate, block.timestamp);
         }
 
