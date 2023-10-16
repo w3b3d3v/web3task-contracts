@@ -94,36 +94,14 @@ To add the localhost network to metamask, click on the network dropdown and sele
 - Chain ID: `31337`
 - Currency Symbol: `ETH`
 
-> **_NOTE:_** Note: Use the first account to avoid errors.
+> **_NOTE:_** Use the recommended accounts to avoid errors.
 
-## Deploying Smart Contracts Local Blockchain
+## Deploying Smart Contracts in the Localhost
 
-### Makefile for setting everything automatically
+Makefile will set everything for us, just run:
 
 ```bash
 make mocks
-```
-
-### Individualy calling the scripts
-
-Deploy the TaskManager contract
-
-```bash
-npx hardhat run --network localhost scripts/deploy.ts
-```
-
-Funding the Contract
-
-```bash
-npx hardhat run --network localhost scripts/fundingContract.ts
-```
-
-Setting Access Controls
-For test purposes, leader has id = 10 and member has id = 5.
-
-```bash
-npx hardhat run --network localhost scripts/setRole.ts
-npx hardhat run --network localhost scripts/setOperator.ts
 ```
 
 ## Livenet Deployment
@@ -133,6 +111,8 @@ Remove the `.sample` from the `.env.sample` file and fill in the values with the
 ## Usage
 
 If you are not using livenet, you should comment chain condigurations at `hardhat.config.ts` or mock the keys in the `.env` file, otherwise you will get an error from hardhat.
+
+To run all the unitary tests, run:
 
 ```bash
 yarn test
