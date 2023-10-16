@@ -26,6 +26,16 @@ async function main() {
 			maxFeePerGas: 200000000000,
 		}
 	);
+
+	await contract.setRole(
+		5,
+		"0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+		false,
+		{
+			maxPriorityFeePerGas: 200000000000,
+			maxFeePerGas: 200000000000,
+		}
+	);
 }
 
 main().catch((error) => {
