@@ -187,12 +187,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should create new task", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userC.address,
@@ -210,12 +214,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should fail to create new task (unauthorized user - userC)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userB.address,
@@ -228,12 +236,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should fail to create new task (invalid leaderId)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId],
 			creatorRole: 200,
 			assignee: userB.address,
@@ -246,12 +258,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should fail to create new task (invalid status -  Progress (1))", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 1,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userB.address,
@@ -401,6 +417,10 @@ describe("Web3Task", function () {
 
 	//New-test - Testing creating a task with an invalid status (1 - 4)
 	it("should fail to create new task ( invalid status - Progress (1), Review (2), Completed (3), Canceled (4) )", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const invalidStatuses = [1, 2, 3, 4];
 		for (const status of invalidStatuses) {
 			const Task = {
@@ -408,7 +428,7 @@ describe("Web3Task", function () {
 				title: "Invalid status task",
 				description: "Não esquecer",
 				reward: ethers.utils.parseEther("1"),
-				endDate: ethers.constants.MaxUint256,
+				endDate: currentBlockTimeStamp + 86400,
 				authorizedRoles: [memberId],
 				creatorRole: leaderId,
 				assignee: userC.address,
@@ -422,12 +442,16 @@ describe("Web3Task", function () {
 
 	//New-test - Testing creating two tasks with the same parameters to return different IDs
 	it("should create a new task with the same parameters as different tasks, not duplicate", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Task with same parameters",
 			description: "Task description",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userC.address,
@@ -447,12 +471,16 @@ describe("Web3Task", function () {
 
 	//New-test - Testing creating a task with an invalid reward (greater than the balance)
 	it("should fail to create a task with a reward greater than the balance", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Task with high reward",
 			description: "Task description",
 			reward: ethers.utils.parseEther("200"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userC.address,
@@ -465,12 +493,16 @@ describe("Web3Task", function () {
 
 	//Net-Test - Testing creating a task with an unautorized user
 	it("should fail to start a task (unauthorized user)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -491,12 +523,16 @@ describe("Web3Task", function () {
 
 	//New-Test - Testing starting a task with an invalid status
 	it("should fail to start a task (Invalid Status)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -519,12 +555,16 @@ describe("Web3Task", function () {
 
 	//New-Test - Testing starting a task with an invalid roleId
 	it("should fail to start a task (invalid roleId)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -542,12 +582,16 @@ describe("Web3Task", function () {
 
 	//New-test - Testing starting a task with an invalid assignee
 	it("should set msg.sender as the task assignee when starting a task", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: ethers.constants.AddressZero,
@@ -569,12 +613,16 @@ describe("Web3Task", function () {
 
 	//New-test - Testing to review a task with a unauthorized user
 	it("should fail to review a task (Unauthorized User)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -602,12 +650,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should fail to review a task (InvalidStatus)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -631,12 +683,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should fail to complete a task (InvalidStatus)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -656,12 +712,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should fail to complete a task (Unauthorized)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -692,12 +752,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should fail to complete a task (AlreadyVoted)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -730,12 +794,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should fail to cancel a task (InvalidStatus)", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,
@@ -788,12 +856,16 @@ describe("Web3Task", function () {
 	});
 
 	it("should return the count of tasks for a user", async function () {
+		// Get the current block timestamp
+		const latestBlock = await ethers.provider.getBlock("latest");
+		const currentBlockTimeStamp = latestBlock.timestamp;
+
 		const Task = {
 			status: 0,
 			title: "Pagar membros do PodLabs",
 			description: "Não esquecer",
 			reward: ethers.utils.parseEther("1"),
-			endDate: ethers.constants.MaxUint256,
+			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [memberId, leaderId],
 			creatorRole: leaderId,
 			assignee: userA.address,

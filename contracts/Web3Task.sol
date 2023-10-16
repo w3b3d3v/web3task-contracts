@@ -281,6 +281,9 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      */
     function getMinQuorum() public view virtual returns (uint256) {
         return APPROVALS;
+    }
+
+    /**
      * @dev See {IWeb3Task-getScore}.
      */
     function getScore(address _address) public view virtual returns (uint256) {
