@@ -245,6 +245,11 @@ interface IWeb3Task {
     function getBalance(uint256 roleId) external view virtual returns (uint256);
 
     /**
+     * @dev This function returns the score of a given address.
+     */
+    function getScore(address addr) external view returns (uint256);
+
+    /**
      * @dev This function allows to deposit funds into the contract into
      * a specific authorization role.
      *

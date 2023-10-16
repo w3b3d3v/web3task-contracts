@@ -32,6 +32,12 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     /// @dev Mapping of address to its tasks.
     mapping(address => uint256[]) private _countOfTasks;
 
+    /// @dev Mapping of address to points.
+    mapping(address => uint256) private _points;
+
+    /// @dev Mapping of task to creation time.
+    mapping(uint256 => uint256) private _createTime;
+
     /**
      * @dev Sets the values for {name} and {symbol}.
      */
@@ -56,7 +62,10 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         onlyOperator(this.createTask.selector, _task.creatorRole, msg.sender)
         returns (uint256)
     {
-        if (_task.endDate < block.timestamp) {
+        if (
+            _task.endDate < block.timestamp ||
+            _task.endDate > block.timestamp + 15 days
+        ) {
             revert InvalidEndDate(_task.endDate, block.timestamp);
         }
 
@@ -65,7 +74,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         }
 
         uint256 balance = _balances[_task.creatorRole];
-        if (_task.reward > balance) {
+        if (_task.reward > balance || _task.reward < 10e12) {
             revert InsufficientBalance(balance, _task.reward);
         }
 
@@ -76,6 +85,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
 
         _tasks[taskId] = _task;
         _countOfTasks[msg.sender].push(taskId);
+        _createTime[taskId] = block.timestamp;
 
         emit TaskCreated(
             taskId,
@@ -190,6 +200,8 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
 
             _mint(task.assignee, _taskId);
 
+            _points[msg.sender] += _setScore(_taskId, task.reward);
+
             (bool sent, ) = payable(task.assignee).call{value: task.reward}("");
             if (!sent || task.reward > _balances[_roleId]) {
                 revert InsufficientBalance(_balances[_roleId], task.reward);
@@ -260,6 +272,13 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      */
     function getBalance(uint256 _roleId) public view virtual returns (uint256) {
         return _balances[_roleId];
+    }
+
+    /**
+     * @dev See {IWeb3Task-getScore}.
+     */
+    function getScore(address _address) public view virtual returns (uint256) {
+        return _points[_address];
     }
 
     /**
@@ -336,5 +355,15 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             }
         }
         return false;
+    }
+
+    /**
+     * @dev Will set the score after completing the task.
+     */
+    function _setScore(
+        uint256 _taskId,
+        uint256 _reward
+    ) internal view virtual returns (uint256) {
+        return (block.timestamp - _createTime[_taskId]) * (_reward / 10e12);
     }
 }
