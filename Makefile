@@ -3,8 +3,8 @@ export
 mocks:
 		make deploy
 		make funding
-		make setRoles
-		make setOperators
+		make roles
+		make operators
 		make tasks
 
 deploy:
