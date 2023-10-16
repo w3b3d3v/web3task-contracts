@@ -21,8 +21,8 @@ async function main() {
 	for (let i = 0; i <= 50; i++) {
 		const Task = {
 			status: 0,
-			title: `Create page ${i + 1}`,
-			description: `Create page ${i + 1}`,
+			title: `Task ${i + 1}`,
+			description: `This is the task of id: ${i + 1}`,
 			reward: ethers.utils.parseEther(generateRandomReward()),
 			endDate: currentBlockTimeStamp + 86400,
 			authorizedRoles: [10, 3],
