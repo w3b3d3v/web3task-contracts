@@ -27,11 +27,14 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     /// @dev Mapping of address to its tasks.
     mapping(address => uint256[]) private _countOfTasks;
 
+    /// @dev Mapping of taskId to points.
+    mapping(uint256 => string[]) private _reviewed;
+
+    /// @dev Mapping of taskId to creation time.
+    mapping(uint256 => uint256) private _createTime;
+
     /// @dev Mapping of address to points.
     mapping(address => uint256) private _points;
-
-    /// @dev Mapping of task to creation time.
-    mapping(uint256 => uint256) private _createTime;
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -42,6 +45,9 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      * @dev See {IWeb3Task-setMinQuorum}.
      */
     function setMinQuorum(uint256 _value) public virtual onlyOwner {
+        if (_value == 0) {
+            revert("Invalid minimum quorum");
+        }
         APPROVALS = _value;
         emit QuorumUpdated(_value);
     }
@@ -153,6 +159,8 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             revert InvalidStatus(task.status);
         }
 
+        _reviewed[_taskId].push(_metadata);
+
         emit TaskReviewed(_taskId, msg.sender, _metadata);
 
         return true;
@@ -246,20 +254,30 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             if (task.endDate == 0) {
                 revert InvalidTaskId(_taskId);
             }
-
-            task.status = Status.Canceled;
+            if (task.status != Status.Completed) {
+                task.status = Status.Canceled;
+            }
         }
 
         return task;
     }
 
     /**
-     * @dev See {IWeb3Task-getTests}.
+     * @dev See {IWeb3Task-getUserTasks}.
      */
     function getUserTasks(
         address _address
-    ) public view returns (uint256[] memory) {
+    ) public view virtual returns (uint256[] memory) {
         return _countOfTasks[_address];
+    }
+
+    /**
+     * @dev See {IWeb3Task-getReviews}.
+     */
+    function getReviews(
+        uint256 _taskId
+    ) public view virtual returns (string[] memory) {
+        return _reviewed[_taskId];
     }
 
     /**
@@ -281,6 +299,15 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      */
     function getMinQuorum() public view virtual returns (uint256) {
         return APPROVALS;
+    }
+
+    /**
+     * @dev See {IWeb3Task-getQuorumApprovals}.
+     */
+    function getQuorumApprovals(
+        uint256 _taskId
+    ) public view virtual returns (uint256) {
+        return _approvals[_taskId];
     }
 
     /**
