@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import { dateNowToUnixTimestamp } from "./utils";
 import abi from "../artifacts/contracts/TasksManager.sol/TasksManager.json";
 
 const { CONTRACT_ADDRESS } = process.env;
@@ -15,8 +16,7 @@ async function main() {
 	const [signer] = await ethers.getSigners();
 	const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
-	const latestBlock = await ethers.provider.getBlock("latest");
-	const currentBlockTimeStamp = latestBlock.timestamp;
+	const currentTimeStamp = await dateNowToUnixTimestamp();
 
 	for (let i = 0; i <= 50; i++) {
 		const Task = {
@@ -24,7 +24,7 @@ async function main() {
 			title: `Task ${i + 1}`,
 			description: `This is the task of id: ${i + 1}`,
 			reward: ethers.utils.parseEther(generateRandomReward()),
-			endDate: currentBlockTimeStamp + 86400,
+			endDate: Number(currentTimeStamp) + 86400,
 			authorizedRoles: [10, 3],
 			creatorRole: 5,
 			assignee: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",

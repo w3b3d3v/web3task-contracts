@@ -237,6 +237,18 @@ interface IWeb3Task {
     function getTask(uint256 taskId) external view returns (Task memory);
 
     /**
+     * @dev This function returns all tasks created by a given address.
+     */
+    function getUserTasks(
+        address addr
+    ) external view returns (uint256[] memory);
+
+    /**
+     * @dev This function returns all reviews for a given task
+     */
+    function getReviews(uint256 taskId) external view returns (string[] memory);
+
+    /**
      * @dev This function returns the balance of a given authorization role.
      *
      * NOTE! It will return 0 if the authorization role does not exist or
@@ -259,6 +271,13 @@ interface IWeb3Task {
      * emit a {QuorumUpdated} event.
      */
     function getMinQuorum() external view returns (uint256);
+
+    /**
+     * @dev This function returns the amount of approvals casted into a task.
+     */
+    function getQuorumApprovals(
+        uint256 _taskId
+    ) external view returns (uint256);
 
     /**
      * @dev This function returns the score of a given address.
