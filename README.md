@@ -1,6 +1,6 @@
-## Pre requisites:
+## Prerequisites:
   
-  #### Install Graph cli using NPM or Yarn
+  #### Install Graph cli using NPM
 
 #### NPM
 
@@ -8,17 +8,11 @@
 $ npm install -g @graphprotocol/graph-cli
 ```
 
-#### Yarn
-
-```bash
-$ yarn global add @graphprotocol/graph-cli
-```
-
 [Docker Desktop](https://docs.docker.com/get-docker/)
 
 [nodeJS LTS](https://nodejs.org/en/download)
 
-## Install depedencies
+## Install dependencies
 
 ```bash
 yarn
@@ -51,6 +45,13 @@ Funding the Contract
 npx hardhat run --network localhost scripts/fundingContract.ts
 ```
 
+## Install subgraph dependencies
+
+```bash
+cd web3task-subgraph
+npm i
+```
+
 ## Running docker
 
 Go to the graph-node directory
@@ -65,7 +66,7 @@ cd subgraph/graph-node
 rm -rf graph-node/data/
 ```
 
-#### start the docker
+#### Start the docker
 
 ```bash
 docker-compose up
