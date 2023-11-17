@@ -75,16 +75,17 @@ npm i
 1. Install the Prettier - Code Formatter in the VsCode extension with `esbenp.prettier-vscode`.
 
 2. Modify the settings json.
-   2.1. Press `ctrl` + `shift` + `p` to oppen the command pallets.
-   2.2. Type "Open Settings (JSON)".
-   2.3. Add the following lines to the JSON file:
-   `"[solidity]": {
- "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
-},
-     "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-}`
-
+   - 2.1. Press `ctrl` + `shift` + `p` to oppen the command pallets.
+   - 2.2. Type "Open Settings (JSON)".
+   - 2.3. Add the following lines to the JSON file:
+    ```
+   "[solidity]": {
+    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+   },
+        "[typescript]": {
+       "editor.defaultFormatter": "esbenp.prettier-vscode"
+   }
+    ```
 ## Setting Up Local Blockchain
 
 Run a Hardhat node:
