@@ -4,16 +4,13 @@ import abi from "../artifacts/contracts/TasksManager.sol/TasksManager.json";
 const { CONTRACT_ADDRESS } = process.env;
 
 async function main() {
-	const [signer] = await ethers.getSigners();
-	const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
+  const [signer] = await ethers.getSigners();
+  const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
-	await contract.startTask(1, 10, {
-		maxPriorityFeePerGas: 200000000000,
-		maxFeePerGas: 200000000000,
-	});
+  await contract.startTask(1, 10);
 }
 
 main().catch((error) => {
-	console.error(error);
-	process.exitCode = 1;
+  console.error(error);
+  process.exitCode = 1;
 });
