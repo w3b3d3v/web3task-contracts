@@ -18,24 +18,21 @@ async function main() {
 
 	const currentTimeStamp = await dateNowToUnixTimestamp();
 
-	for (let i = 0; i <= 50; i++) {
+	for (let i = 0; i <= 2; i++) {
 		const Task = {
 			status: 0,
 			title: `Task ${i + 1}`,
 			description: `This is the task of id: ${i + 1}`,
-			reward: ethers.utils.parseEther(generateRandomReward()),
+			reward: ethers.utils.parseEther("0.001"),
 			endDate: Number(currentTimeStamp) + 86400,
-			authorizedRoles: [10, 3],
+			authorizedRoles: [5],
 			creatorRole: 5,
-			assignee: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+			assignee: "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
 			metadata:
 				"https://ipfs.io/ipfs/QmY5DnoeR8KvFQbf2swJcSZrBfXo4icnMuzrjGvj6q7CEh",
 		};
 
-		await contract.createTask(Task, {
-			maxPriorityFeePerGas: 200000000000,
-			maxFeePerGas: 200000000000,
-		});
+		await contract.createTask(Task);
 	}
 }
 
