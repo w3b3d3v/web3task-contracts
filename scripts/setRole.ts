@@ -9,23 +9,15 @@ async function main() {
 
 	await contract.setRole(
 		5,
-		"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-		true,
-		{
-			maxPriorityFeePerGas: 200000000000,
-			maxFeePerGas: 200000000000,
-		}
+		"0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+		true
 	);
 
-	await contract.setRole(
-		10,
-		"0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-		true,
-		{
-			maxPriorityFeePerGas: 200000000000,
-			maxFeePerGas: 200000000000,
-		}
-	);
+	// await contract.setRole(
+	// 	10,
+	// 	"0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+	// 	true
+	// );
 }
 
 main().catch((error) => {

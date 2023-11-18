@@ -8,16 +8,16 @@ mocks:
 		make tasks
 
 deploy:
-		npx hardhat run --network localhost scripts/deploy.ts
+		npx hardhat run --network lachain scripts/deploy.ts
 
 funding:
-		npx hardhat run --network localhost scripts/fundingContract.ts
+		npx hardhat run --network lachain scripts/fundingContract.ts
 
 roles:
-		npx hardhat run --network localhost scripts/setRole.ts
+		npx hardhat run --network lachain scripts/setRole.ts
 
 operators:
-		npx hardhat run --network localhost scripts/setOperator.ts
+		npx hardhat run --network lachain scripts/setOperator.ts
 
 tasks:
-		npx hardhat run --network localhost scripts/createTasks.ts
+		npx hardhat run --network lachain scripts/createTasks.ts

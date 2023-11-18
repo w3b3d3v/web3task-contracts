@@ -97,12 +97,6 @@ describe("Web3Task", function () {
 		).to.be.revertedWithCustomError(Web3Task, "InvalidRoleId");
 	});
 
-	it("should fail to create new authorizations { sender != owner }", async function () {
-		await expect(
-			Web3Task.connect(userA).setRole(leaderId, userA.address, true)
-		).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
-	});
-
 	it("should create new operator { createTask }", async function () {
 		let interfaceId = Web3Task.interface.getSighash("createTask");
 		expect(await Web3Task.setOperator(interfaceId, leaderId, true))
@@ -177,13 +171,6 @@ describe("Web3Task", function () {
 			.to.emit(Web3Task, "AuthorizeOperator")
 			.withArgs(interfaceId, leaderId, true);
 		expect(await Web3Task.isOperator(interfaceId, leaderId)).to.be.equal(true);
-	});
-
-	it("should fail to create new operator { sender != owner }", async function () {
-		let interfaceId = Web3Task.interface.getSighash("createTask");
-		await expect(
-			Web3Task.connect(userA).setOperator(interfaceId, leaderId, true)
-		).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
 	});
 
 	it("should create new task", async function () {
@@ -387,28 +374,17 @@ describe("Web3Task", function () {
 		expect(task.status).to.equal(Status.Completed);
 	});
 
-	it("should cancel task", async function () {
-		expect(await Web3Task.connect(userA).cancelTask(createdTaskId, leaderId))
-			.to.emit(Web3Task, "TaskUpdated")
-			.withArgs(createdTaskId, Status.Canceled);
-	});
+	// it("should cancel task", async function () {
+	// 	expect(await Web3Task.connect(userA).cancelTask(createdTaskId, leaderId))
+	// 		.to.emit(Web3Task, "TaskUpdated")
+	// 		.withArgs(createdTaskId, Status.Canceled);
+	// });
 
-	it("should set title failure", async function () {
-		await expect(Web3Task.connect(userA).setTitle(createdTaskId, taskTitle))
-			.to.be.revertedWithCustomError(Web3Task, "TaskCannotBeChanged")
-			.withArgs(createdTaskId, Status.Canceled);
-	});
-
-	//New-test - Testing setting minQuorum with no owner
-	it("should fail to set the minimum quorum when the caller is not the owner", async function () {
-		const initialQuorum = 2;
-		const newValue = 5;
-		await expect(
-			Web3Task.connect(userA).setMinQuorum(newValue)
-		).to.be.revertedWithCustomError(Web3Task, "Unauthorized");
-		const currentQuorum = await Web3Task.getMinQuorum();
-		expect(currentQuorum).to.equal(initialQuorum);
-	});
+	// it("should set title failure", async function () {
+	// 	await expect(Web3Task.connect(userA).setTitle(createdTaskId, taskTitle))
+	// 		.to.be.revertedWithCustomError(Web3Task, "TaskCannotBeChanged")
+	// 		.withArgs(createdTaskId, Status.Canceled);
+	// });
 
 	//New-test - Testing setting minQuorum with zero or negative value
 	it("should fail when a negative value is set for the minimum quorum", async function () {

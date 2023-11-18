@@ -8,40 +8,37 @@ async function main() {
 	const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
 	var sigHash = contract.interface.getSighash("createTask");
-	await contract.setOperator(sigHash, 5, true, {
-		maxPriorityFeePerGas: 200000000000,
-		maxFeePerGas: 200000000000,
-	});
+	await contract.setOperator(sigHash, 5, true);
 
-	var sigHash = contract.interface.getSighash("startTask");
-	await contract.setOperator(sigHash, 10, true, {
-		maxPriorityFeePerGas: 200000000000,
-		maxFeePerGas: 200000000000,
-	});
+	// var sigHash = contract.interface.getSighash("startTask");
+	// await contract.setOperator(sigHash, 10, true, {
+	// 	maxPriorityFeePerGas: 200000000000,
+	// 	maxFeePerGas: 200000000000,
+	// });
 
-	var sigHash = contract.interface.getSighash("reviewTask");
-	await contract.setOperator(sigHash, 5, true, {
-		maxPriorityFeePerGas: 200000000000,
-		maxFeePerGas: 200000000000,
-	});
+	// var sigHash = contract.interface.getSighash("reviewTask");
+	// await contract.setOperator(sigHash, 5, true, {
+	// 	maxPriorityFeePerGas: 200000000000,
+	// 	maxFeePerGas: 200000000000,
+	// });
 
-	var sigHash = contract.interface.getSighash("reviewTask");
-	await contract.setOperator(sigHash, 10, true, {
-		maxPriorityFeePerGas: 200000000000,
-		maxFeePerGas: 200000000000,
-	});
+	// var sigHash = contract.interface.getSighash("reviewTask");
+	// await contract.setOperator(sigHash, 10, true, {
+	// 	maxPriorityFeePerGas: 200000000000,
+	// 	maxFeePerGas: 200000000000,
+	// });
 
-	var sigHash = contract.interface.getSighash("completeTask");
-	await contract.setOperator(sigHash, 5, true, {
-		maxPriorityFeePerGas: 200000000000,
-		maxFeePerGas: 200000000000,
-	});
+	// var sigHash = contract.interface.getSighash("completeTask");
+	// await contract.setOperator(sigHash, 5, true, {
+	// 	maxPriorityFeePerGas: 200000000000,
+	// 	maxFeePerGas: 200000000000,
+	// });
 
-	var sigHash = contract.interface.getSighash("cancelTask");
-	await contract.setOperator(sigHash, 5, true, {
-		maxPriorityFeePerGas: 200000000000,
-		maxFeePerGas: 200000000000,
-	});
+	// var sigHash = contract.interface.getSighash("cancelTask");
+	// await contract.setOperator(sigHash, 5, true, {
+	// 	maxPriorityFeePerGas: 200000000000,
+	// 	maxFeePerGas: 200000000000,
+	// });
 }
 
 main().catch((error) => {
