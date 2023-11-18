@@ -95,7 +95,7 @@ abstract contract AccessControl {
         uint256 _roleId,
         address _authorizedAddress,
         bool _isAuthorized
-    ) public virtual onlyOwner {
+    ) public virtual {
         if (_roleId == 0) {
             revert InvalidRoleId(_roleId);
         }
@@ -120,7 +120,7 @@ abstract contract AccessControl {
         bytes4 _interfaceId,
         uint256 _roleId,
         bool _isAuthorized
-    ) public virtual onlyOwner {
+    ) public virtual {
         if (_roleId == 0) {
             revert InvalidRoleId(_roleId);
         }
