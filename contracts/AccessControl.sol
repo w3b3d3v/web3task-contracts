@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 abstract contract AccessControl {
     /**
@@ -95,7 +95,7 @@ abstract contract AccessControl {
         uint256 _roleId,
         address _authorizedAddress,
         bool _isAuthorized
-    ) public virtual onlyOwner {
+    ) public virtual {
         if (_roleId == 0) {
             revert InvalidRoleId(_roleId);
         }
@@ -120,7 +120,7 @@ abstract contract AccessControl {
         bytes4 _interfaceId,
         uint256 _roleId,
         bool _isAuthorized
-    ) public virtual onlyOwner {
+    ) public virtual {
         if (_roleId == 0) {
             revert InvalidRoleId(_roleId);
         }
