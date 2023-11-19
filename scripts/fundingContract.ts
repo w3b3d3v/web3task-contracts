@@ -8,7 +8,7 @@ async function main() {
 	const contract = new ethers.Contract(`${CONTRACT_ADDRESS}`, abi.abi, signer);
 
 	await contract.deposit(5, {
-		value: ethers.utils.parseEther("1")
+		value: ethers.utils.parseEther("0.5")
 	});
 }
 

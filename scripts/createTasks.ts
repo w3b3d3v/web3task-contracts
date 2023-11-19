@@ -23,11 +23,11 @@ async function main() {
 			status: 0,
 			title: `Task ${i + 1}`,
 			description: `This is the task of id: ${i + 1}`,
-			reward: ethers.utils.parseEther("0.001"),
+			reward: ethers.utils.parseEther(generateRandomReward()),
 			endDate: Number(currentTimeStamp) + 86400,
-			authorizedRoles: [5],
+			authorizedRoles: [5, 10],
 			creatorRole: 5,
-			assignee: "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+			assignee: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
 			metadata:
 				"https://ipfs.io/ipfs/QmY5DnoeR8KvFQbf2swJcSZrBfXo4icnMuzrjGvj6q7CEh",
 		};
