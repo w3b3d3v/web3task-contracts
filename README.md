@@ -1,10 +1,10 @@
 # Web3Task-contracts
 
-This protocol aims to solve the problem of monetized contribuitions by fractionalizing work and demands just like the github issues, where the company creates the issues and places a bouty for users to solve them under the company's terms.
+This protocol aims to solve the problem of monetized contributions by fractionalizing work and demands just like the GitHub issues, where the company creates the issues and places a bounty for users to solve them under the company's terms.
 
 ## Current Status
 
-Project is currently under the MvP stage. The following features will be implemented in the next versions:
+The project is currently in the MVP stage. The following features will be implemented in the next versions:
 
 - Bid
 - Disputes
@@ -13,25 +13,25 @@ Project is currently under the MvP stage. The following features will be impleme
 - Fee Mechanism
 - Deployment for 3rd-parties (Multiple projects using the same contract to optimize front-end indexing)
 
-if you are a developer and want to contribute to this features, please contact us as we are still in the conception phase of them.
+if you are a developer and want to contribute to these features, don't hesitate to get in touch with us as we are still in the conception phase of them.
 
 ## Disputes
 
-We are aware that disputes are a common ground in this kind of service, so we are not mainly working on a solution to address this problem as a lot of people tried and failed. Instead our solution is a gamified approach for both task creator and task assignee. Delivering prior to date will harvest better score for the assignee, while having its created tasks completed the task creator will also harvest profile score. This score will be used to rank users in the platform, and the higher the score the more trustable the user is. Opening disputes is supposed to be a risky and unworthy move by both sides, as disputes will drastically decrease the score of both sides or the side that is wrong according to the DAO final saying.
+We are aware that disputes are common ground in this kind of service, so we are not mainly working on a solution to address this problem as a lot of people tried and failed. Instead, our solution is a gamified approach for both task creator and task assignee. Delivering prior to the date will harvest a better score for the assignee, while having its created tasks completed the task creator will also harvest the profile score. This score will be used to rank users in the platform, and the higher the score the more trustable the user is. Opening disputes are supposed to be a risky and unworthy move by both sides, as disputes will drastically decrease the score of both sides of the wrong side according to the DAO final saying.
 
 ## Bounties
 
-The task creator will be able to create a task and set a bounty for it, and the task assignee will be able to start the task and submit it for review. If the task creator approves the task, the bounty will be sent to the task assignee, otherwise the task creator will be able to cancel the task and get the bounty back.
+The task creator will be able to create a task and set a bounty for it, and the task assignee will be able to start the task and submit it for review. If the task creator approves the task, the bounty will be sent to the task assignee, otherwise, the task creator will be able to cancel the task and get the bounty back.
 
 ## Ranking
 
 The ranking system will be based on the score of the user, which will be calculated based on the following factors:
 
-- Deliver time prior to deadline
+- Deliver time prior to the deadline
 - Reward Amount
 - Disputes during the execution of the task
 
-The scores will only be applied after the task final complitude.
+The scores will only be applied after the task's final complitude.
 
 ## Features
 
@@ -51,10 +51,10 @@ Note that editing sensitive information that might affect the task assignee will
 
 To manage the Access Control of users, the following methods are implemented:
 
-- Set Role: Sets the role id for an address as true,
-- Set Operator: Sets which role id can manage the contract functions.
+- Set Role: Sets the role ID for an address as true,
+- Set Operator: Sets which role it can manage the contract functions.
 
-Note that every function in the contract must have a role id assigned to operate it, as well as an address authorized by a role id.
+Note that every function in the contract must have a role ID assigned to operate it and an address authorized by a role ID.
 
 ## Contracts
 
@@ -69,6 +69,23 @@ Note that every function in the contract must have a role id assigned to operate
 yarn
 npm i
 ```
+
+## Setting Up A Stanrdad Formatting Code
+
+1. Install the Prettier - Code Formatter in the VsCode extension with `esbenp.prettier-vscode`.
+
+2. Modify the settings json.
+   - 2.1. Press `ctrl` + `shift` + `p` to oppen the command pallets.
+   - 2.2. Type "Open Settings (JSON)".
+   - 2.3. Add the following lines to the JSON file:
+   ```
+   "[solidity]": {
+   "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+   },
+       "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+   }
+   ```
 
 ## Setting Up Local Blockchain
 
@@ -110,9 +127,17 @@ Remove the `.sample` from the `.env.sample` file and fill in the values with the
 
 ## Usage
 
-If you are not using livenet, you should comment chain condigurations at `hardhat.config.ts` or mock the keys in the `.env` file, otherwise you will get an error from hardhat.
+If you are not using livenet, you should comment chain configurations at `hardhat.config.ts` or mock the keys in the `.env` file, otherwise you will get an error from hardhat.
 
 To run all the unitary tests, run:
+
+## Address deployed to the Polygon Mainnet
+
+POLYGON -> 0x37a9594B9741Cc5eE7Fd41C86Cc6C56B01d31e5A
+
+## Address deployed to the Mumbai Testnet
+
+MUMBAI -> 0xfcf05f746cb9e4643a2db20b80f94dda07693d39
 
 ```bash
 yarn test
