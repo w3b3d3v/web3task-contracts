@@ -7,17 +7,12 @@ import {IWeb3Task} from "./interfaces/IWeb3Task.sol";
 
 abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     /// @dev Current taskId, aslo used as token id.
-    uint256 public taskId;
+    uint256 private taskId;
 
     /// @dev Amount of necessary approvals to finish a task.
-    uint256 public APPROVALS = 2;
+    uint256 private APPROVALS = 2;
 
-    /**
-     * @dev Mapping of taskId to Task.
-     *
-     * This will remain as internal, otherwise this contract would have
-     * to implement one virtual function for each Task property.
-     */
+    ///@dev Mapping of taskId to Task.
     mapping(uint256 => Task) internal _tasks;
 
     /// @dev Mapping of access control id to balance.
@@ -26,11 +21,20 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     /// @dev Mapping of taskId to its approvals for conclusion.
     mapping(uint256 => uint256) private _approvals;
 
-    /// @dev Mapping of taskId to address that already voted.
-    mapping(uint256 => address) private _alreadyVoted;
+    /// @dev Mapping of taskId and address to already voted boolean.
+    mapping(uint256 => mapping(address => bool)) private _alreadyVoted;
 
     /// @dev Mapping of address to its tasks.
     mapping(address => uint256[]) private _countOfTasks;
+
+    /// @dev Mapping of taskId to points.
+    mapping(uint256 => string[]) private _reviewed;
+
+    /// @dev Mapping of taskId to creation time.
+    mapping(uint256 => uint256) private _createTime;
+
+    /// @dev Mapping of address to points.
+    mapping(address => uint256) private _points;
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -41,6 +45,9 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      * @dev See {IWeb3Task-setMinQuorum}.
      */
     function setMinQuorum(uint256 _value) public virtual onlyOwner {
+        if (_value == 0) {
+            revert("Invalid minimum quorum");
+        }
         APPROVALS = _value;
         emit QuorumUpdated(_value);
     }
@@ -65,7 +72,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
         }
 
         uint256 balance = _balances[_task.creatorRole];
-        if (_task.reward > balance) {
+        if (_task.reward > balance || _task.reward < 10e12) {
             revert InsufficientBalance(balance, _task.reward);
         }
 
@@ -76,6 +83,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
 
         _tasks[taskId] = _task;
         _countOfTasks[msg.sender].push(taskId);
+        _createTime[taskId] = block.timestamp;
 
         emit TaskCreated(
             taskId,
@@ -151,6 +159,8 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             revert InvalidStatus(task.status);
         }
 
+        _reviewed[_taskId].push(_metadata);
+
         emit TaskReviewed(_taskId, msg.sender, _metadata);
 
         return true;
@@ -178,17 +188,18 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             revert Unauthorized(msg.sender);
         }
 
-        if (_alreadyVoted[_taskId] == msg.sender) {
+        if (_alreadyVoted[_taskId][msg.sender]) {
             revert AlreadyVoted(msg.sender);
         }
 
-        _alreadyVoted[_taskId] = msg.sender;
+        _alreadyVoted[_taskId][msg.sender] = true;
         _approvals[_taskId]++;
 
-        if (_approvals[_taskId] == APPROVALS) {
+        if (_approvals[_taskId] >= APPROVALS) {
             _tasks[_taskId].status = Status.Completed;
 
             _mint(task.assignee, _taskId);
+            _setScore(_taskId, task.reward, task.assignee);
 
             (bool sent, ) = payable(task.assignee).call{value: task.reward}("");
             if (!sent || task.reward > _balances[_roleId]) {
@@ -216,8 +227,12 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
     {
         Task memory task = getTask(_taskId);
 
-        if (task.status == Status.Canceled) {
+        if (task.status == Status.Canceled || task.status == Status.Completed) {
             revert InvalidStatus(task.status);
+        }
+
+        if (task.creatorRole != _roleId) {
+            revert Unauthorized(msg.sender);
         }
 
         _tasks[_taskId].status = Status.Canceled;
@@ -239,20 +254,30 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             if (task.endDate == 0) {
                 revert InvalidTaskId(_taskId);
             }
-
-            task.status = Status.Canceled;
+            if (task.status != Status.Completed) {
+                task.status = Status.Canceled;
+            }
         }
 
         return task;
     }
 
     /**
-     * @dev See {IWeb3Task-getTests}.
+     * @dev See {IWeb3Task-getUserTasks}.
      */
     function getUserTasks(
         address _address
-    ) public view returns (uint256[] memory) {
+    ) public view virtual returns (uint256[] memory) {
         return _countOfTasks[_address];
+    }
+
+    /**
+     * @dev See {IWeb3Task-getReviews}.
+     */
+    function getReviews(
+        uint256 _taskId
+    ) public view virtual returns (string[] memory) {
+        return _reviewed[_taskId];
     }
 
     /**
@@ -260,6 +285,47 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      */
     function getBalance(uint256 _roleId) public view virtual returns (uint256) {
         return _balances[_roleId];
+    }
+
+    /**
+     * @dev See {IWeb3Task-getTaskId}.
+     */
+    function getTaskId() public view virtual returns (uint256) {
+        return taskId;
+    }
+
+    /**
+     * @dev See {IWeb3Task-getMinQuorum}.
+     */
+    function getMinQuorum() public view virtual returns (uint256) {
+        return APPROVALS;
+    }
+
+    /**
+     * @dev See {IWeb3Task-getQuorumApprovals}.
+     */
+    function getQuorumApprovals(
+        uint256 _taskId
+    ) public view virtual returns (uint256) {
+        return _approvals[_taskId];
+    }
+
+    /**
+     * @dev See {IWeb3Task-getScore}.
+     */
+    function getScore(address _address) public view virtual returns (uint256) {
+        return _points[_address];
+    }
+
+    /**
+     * @dev See {IWeb3Task-hasVoted}.
+     */
+    function hasVoted(
+        uint256 _taskId,
+        address _addr
+    ) public view virtual returns (bool) {
+        bool voted = _alreadyVoted[_taskId][_addr];
+        return voted;
     }
 
     /**
@@ -318,7 +384,7 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
      *
      * Since the entire mapping for role structure cannot be looped,
      * we ask for the user to point the role he is using to call
-     * the function. We then check if the auth provided matches the any
+     * the function. We then check if the auth provided matches any
      * of the initially auths, settled in the current task.
      */
     function _isRoleAllowed(
@@ -336,5 +402,19 @@ abstract contract Web3Task is ERC721, AccessControl, IWeb3Task {
             }
         }
         return false;
+    }
+
+    /**
+     * @dev Will set the score after completing the task.
+     */
+    function _setScore(
+        uint256 _taskId,
+        uint256 _reward,
+        address _assignee
+    ) internal virtual {
+        uint256 newScore = (block.timestamp - _createTime[_taskId]) *
+            (_reward / 10e12);
+        _points[_assignee] += newScore;
+        _points[msg.sender] += newScore;
     }
 }
