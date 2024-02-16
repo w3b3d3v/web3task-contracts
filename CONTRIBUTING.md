@@ -83,8 +83,6 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 * All features or bug fixes **must be tested** by one or more specs (unit-tests).
 * All public API methods **must be documented**.
 
-An automated formatter is available, see [DEVELOPER.md](docs/DEVELOPER.md#clang-format).
-
 ## <a name="contact"></a> Contact
 
 This project and everyone participating in it is governed by the [Code of Conduct](https://github.com/w3b3d3v/code-of-conduct/blob/main/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [labs@w3d.community](mailto:labs@w3d.community).
